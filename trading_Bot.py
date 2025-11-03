@@ -278,26 +278,72 @@ with tab1:
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Run analysis to load dashboard.")
-
+        
 # === TAB 2 (BACKTEST) ===
 with tab2:
-    if st.session_state.data is None or st.session_state.data.empty:
-        st.info("Run analysis to backtest signals.")
-    else:
-        df_strategy = st.session_state.data.copy()
-        df_strategy["Date"] = pd.to_datetime(df_strategy["Date"])
-        df_strategy = df_strategy.sort_values("Date").reset_index(drop=True)
-        df_strategy["returns"] = df_strategy["Close"].pct_change().fillna(0)
-        df_strategy["position"] = df_strategy["signal"].shift(1).map({"BUY": 1, "SELL": -1, "HOLD": 0}).fillna(0)
-        df_strategy["strategy"] = df_strategy["returns"] * df_strategy["position"]
-        df_strategy["Strategy Returns"] = (1 + df_strategy["strategy"]).cumprod()
-        df_strategy["Buy & Hold Returns"] = (1 + df_strategy["returns"]).cumprod()
-        perf = backtest(df_strategy)
-        st.metric("Backtest Cumulative Return", f"{perf*100:.2f}%")
-        df_chart = df_strategy.set_index("Date")
-        st.subheader("Strategy vs. Buy & Hold")
-        st.line_chart(df_chart[["Strategy Returns", "Buy & Hold Returns"]])
-        st.dataframe(df_strategy[["Date", "Close", "signal", "position", "Strategy Returns", "Buy & Hold Returns"]].tail(15))
+    try:
+        if st.session_state.data is None or st.session_state.data.empty:
+            st.info("⚠️ Run analysis first to generate trading signals.")
+        else:
+            df_strategy = st.session_state.data.copy()
+
+            # --- Ensure Date column exists ---
+            if "Date" not in df_strategy.columns:
+                if isinstance(df_strategy.index, pd.DatetimeIndex):
+                    df_strategy = df_strategy.reset_index().rename(columns={"index": "Date"})
+                else:
+                    df_strategy["Date"] = pd.to_datetime(
+                        np.arange(len(df_strategy)), unit="D", origin="2023-01-01"
+                    )
+
+            # --- Ensure signal column exists ---
+            if "signal" not in df_strategy.columns:
+                st.warning("⚠️ No signals found! Please run analysis first.")
+                st.stop()
+
+            # --- Clean columns and sort ---
+            df_strategy["Date"] = pd.to_datetime(df_strategy["Date"], errors="coerce")
+            df_strategy = df_strategy.dropna(subset=["Date"])
+            df_strategy = df_strategy.sort_values("Date").reset_index(drop=True)
+
+            # --- Compute returns safely ---
+            if "Close" not in df_strategy.columns:
+                st.error("❌ Missing 'Close' column in data — check fetch_price().")
+                st.stop()
+
+            df_strategy["returns"] = df_strategy["Close"].pct_change().fillna(0)
+            df_strategy["position"] = df_strategy["signal"].shift(1).map(
+                {"BUY": 1, "SELL": -1, "HOLD": 0}
+            ).fillna(0)
+            df_strategy["strategy"] = df_strategy["returns"] * df_strategy["position"]
+            df_strategy["Strategy Returns"] = (1 + df_strategy["strategy"]).cumprod()
+            df_strategy["Buy & Hold Returns"] = (1 + df_strategy["returns"]).cumprod()
+
+            # --- Backtest summary metric ---
+            perf = backtest(df_strategy)
+            st.metric("📈 Backtest Cumulative Return", f"{perf * 100:.2f}%")
+
+            # --- Chart plotting (safe columns only) ---
+            st.subheader("Strategy vs. Buy & Hold")
+
+            plot_cols = [
+                c for c in ["Strategy Returns", "Buy & Hold Returns"]
+                if c in df_strategy.columns
+            ]
+            if plot_cols:
+                st.line_chart(df_strategy.set_index("Date")[plot_cols])
+            else:
+                st.warning("⚠️ No valid return columns to plot.")
+
+            st.dataframe(
+                df_strategy[["Date", "Close", "signal", "position", "Strategy Returns", "Buy & Hold Returns"]].tail(15)
+            )
+
+    except KeyError as e:
+        st.error(f"🚨 KeyError encountered: {e}. Please re-run the analysis.")
+    except Exception as e:
+        st.error(f"⚠️ Unexpected error: {e}")
+        
 
 # === TAB 3 ===
 with tab3:
