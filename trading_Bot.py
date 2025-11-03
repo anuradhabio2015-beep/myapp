@@ -172,6 +172,8 @@ def get_ai_detailed_report(symbol_name, current_price):
     Based on those probabilities, recommend which weekly option buying strategy is likely to yield the highest expected profit over this one week horizon:
     - Buying call options only
     - Buying put options only
+    - Selling call options only
+    - Selling Put options only
     - Buying a long strangle (both calls and puts for volatility)
 
     For each strategy, estimate:
