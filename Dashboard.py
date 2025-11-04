@@ -11,10 +11,10 @@ from plotly.subplots import make_subplots
 # ---------------------------------
 st.set_page_config(page_title="Bank Nifty AI Assistant", page_icon="📈", layout="wide")
 st.title("📈 Bank Nifty — Daily AI Trading Assistant")
-st.caption("Live data with RSI, MACD, Bollinger Bands, and real-time BUY/SELL alerts")
+st.caption("Real-time RSI, MACD, Bollinger Bands, and BUY/SELL alerts with sound")
 
 # ---------------------------------
-# INDICATOR FUNCTIONS
+# TECHNICAL INDICATORS
 # ---------------------------------
 def ema(series, span):
     return series.ewm(span=span, adjust=False).mean()
@@ -50,10 +50,14 @@ def fetch_data(interval="5m", days=5):
     df.reset_index(inplace=True)
     if "Datetime" in df.columns:
         df.rename(columns={"Datetime": "Date"}, inplace=True)
+    # Ensure numeric
+    for col in ["Open", "High", "Low", "Close", "Volume"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+    df.dropna(subset=["Close"], inplace=True)
     return df
 
 # ---------------------------------
-# SIDEBAR SETTINGS
+# SIDEBAR CONTROLS
 # ---------------------------------
 st.sidebar.header("⚙️ Settings")
 interval = st.sidebar.selectbox("Interval", ["5m", "15m", "30m", "60m", "1d"], index=1)
@@ -74,7 +78,7 @@ if df.empty:
     st.stop()
 
 # ---------------------------------
-# INDICATORS
+# INDICATOR CALCULATION
 # ---------------------------------
 df["RSI"] = rsi(df["Close"], rsi_period)
 df["MACD"], df["MACD_Signal"], df["MACD_Hist"] = macd(df["Close"], macd_fast, macd_slow, macd_signal)
@@ -83,7 +87,6 @@ df["BB_Mid"], df["BB_Upper"], df["BB_Lower"] = bollinger(df["Close"], bb_period,
 # ---------------------------------
 # SIGNAL CALCULATION (robust)
 # ---------------------------------
-# Ensure numeric + no NA
 for c in ["RSI", "MACD", "MACD_Signal"]:
     df[c] = pd.to_numeric(df[c], errors="coerce")
 
@@ -94,11 +97,10 @@ if df.shape[0] == 0:
     st.error("No rows available after indicator calculation.")
     st.stop()
 
-# ✅ Get final scalar values
 def last_bool(col: str) -> bool:
     v = df[col].iloc[-1]
     try:
-        return bool(v.item())  # handles numpy.bool_
+        return bool(v.item())
     except Exception:
         return bool(v)
 
@@ -116,32 +118,36 @@ else:
 # ALERTS
 # ---------------------------------
 if signal == "BUY":
-    st.toast("✅ **New BUY signal detected!**", icon="✅")
+    st.toast("✅ **BUY signal detected!**", icon="✅")
     st.markdown(
         "<audio autoplay><source src='https://actions.google.com/sounds/v1/alarms/beep_short.ogg' type='audio/ogg'></audio>",
         unsafe_allow_html=True,
     )
 elif signal == "SELL":
-    st.toast("⚠️ **New SELL signal detected!**", icon="⚠️")
+    st.toast("⚠️ **SELL signal detected!**", icon="⚠️")
     st.markdown(
         "<audio autoplay><source src='https://actions.google.com/sounds/v1/alarms/beep_short.ogg' type='audio/ogg'></audio>",
         unsafe_allow_html=True,
     )
 else:
-    st.toast("ℹ️ No strong signal — HOLD/Neutral Zone", icon="ℹ️")
+    st.toast("ℹ️ HOLD / Neutral zone", icon="ℹ️")
 
 # ---------------------------------
-# METRICS PANEL
+# METRICS PANEL (safe conversions)
 # ---------------------------------
 latest = df.iloc[-1]
+close_val = latest.get("Close", np.nan)
+rsi_val = latest.get("RSI", np.nan)
+macd_val = latest.get("MACD", np.nan)
+
 col1, col2, col3, col4 = st.columns(4)
-col1.metric("Last Close", f"{latest['Close']:.2f}")
-col2.metric("RSI", f"{latest['RSI']:.1f}")
-col3.metric("MACD", f"{latest['MACD']:.2f}")
+col1.metric("Last Close", f"{float(close_val):.2f}" if pd.notna(close_val) else "—")
+col2.metric("RSI", f"{float(rsi_val):.1f}" if pd.notna(rsi_val) else "—")
+col3.metric("MACD", f"{float(macd_val):.2f}" if pd.notna(macd_val) else "—")
 col4.metric("Signal", signal)
 
 # ---------------------------------
-# CHART (Candlestick + MACD)
+# CHART
 # ---------------------------------
 fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08)
 fig.add_trace(go.Candlestick(
@@ -162,10 +168,10 @@ st.plotly_chart(fig, use_container_width=True)
 # ---------------------------------
 # DATA TABLE
 # ---------------------------------
-with st.expander("📊 View Latest Data (last 20 rows)"):
+with st.expander("📊 Latest Data (last 20 rows)"):
     st.dataframe(df.tail(20))
 
 # ---------------------------------
 # FOOTER
 # ---------------------------------
-st.caption("⚠️ For educational use only. This is not financial advice.")
+st.caption("⚠️ For educational use only — not investment advice.")
