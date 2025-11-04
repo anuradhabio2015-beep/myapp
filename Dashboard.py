@@ -229,7 +229,7 @@ with st.sidebar:
 
 # Optional auto-refresh
 if auto_refresh_sec > 0:
-    st.experimental_set_query_params(_ts=str(int(time.time())))  # bust cache for chart re-render
+    st.query_params(_ts=str(int(time.time())))  # bust cache for chart re-render
     st.autorefresh(interval=auto_refresh_sec * 1000, key="refresh_key")
 
 # -----------------------------
