@@ -5,173 +5,43 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import traceback
 
-# ---------------------------------
-# PAGE CONFIG
-# ---------------------------------
 st.set_page_config(page_title="Bank Nifty AI Assistant", page_icon="📈", layout="wide")
-st.title("📈 Bank Nifty — Daily AI Trading Assistant")
-st.caption("Real-time RSI, MACD, Bollinger Bands, and BUY/SELL alerts with sound")
+st.title("📈 Bank Nifty — Daily AI Trading Assistant (debug-safe build)")
 
-# ---------------------------------
-# TECHNICAL INDICATORS
-# ---------------------------------
-def ema(series, span):
-    return series.ewm(span=span, adjust=False).mean()
+# -------------------------------  UTILITIES  -------------------------------
+def show_error(e):
+    """Display the real exception on screen."""
+    st.error("⚠️ An unexpected error occurred:")
+    st.code("".join(traceback.format_exception_only(type(e), e)))
+
+def ema(series, span): return series.ewm(span=span, adjust=False).mean()
 
 def rsi(series, period=14):
     delta = series.diff()
-    gain = delta.clip(lower=0).rolling(window=period).mean()
-    loss = -delta.clip(upper=0).rolling(window=period).mean()
+    gain = delta.clip(lower=0).rolling(period).mean()
+    loss = -delta.clip(upper=0).rolling(period).mean()
     rs = gain / loss.replace(0, np.nan)
     return 100 - (100 / (1 + rs))
 
 def macd(series, fast=12, slow=26, signal=9):
     macd_line = ema(series, fast) - ema(series, slow)
     signal_line = ema(macd_line, signal)
-    hist = macd_line - signal_line
-    return macd_line, signal_line, hist
+    return macd_line, signal_line, macd_line - signal_line
 
 def bollinger(series, period=20, std=2):
-    mid = series.rolling(window=period).mean()
-    sd = series.rolling(window=period).std()
-    upper = mid + std * sd
-    lower = mid - std * sd
-    return mid, upper, lower
+    mid = series.rolling(period).mean()
+    sd = series.rolling(period).std()
+    return mid, mid + std*sd, mid - std*sd
 
-# ---------------------------------
-# DATA FETCH (Yahoo Finance)
-# ---------------------------------
 @st.cache_data(ttl=120)
 def fetch_data(interval="5m", days=5):
     ticker = "^NSEBANK"
     start = datetime.now() - timedelta(days=days + 1)
     df = yf.download(ticker, start=start, interval=interval, progress=False)
+    if df.empty:
+        raise ValueError("No data received from Yahoo Finance.")
     df.reset_index(inplace=True)
     if "Datetime" in df.columns:
-        df.rename(columns={"Datetime": "Date"}, inplace=True)
-    # Ensure numeric
-    for col in ["Open", "High", "Low", "Close", "Volume"]:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
-    df.dropna(subset=["Close"], inplace=True)
-    return df
-
-# ---------------------------------
-# SIDEBAR CONTROLS
-# ---------------------------------
-st.sidebar.header("⚙️ Settings")
-interval = st.sidebar.selectbox("Interval", ["5m", "15m", "30m", "60m", "1d"], index=1)
-days = st.sidebar.slider("Lookback (days)", 1, 30, 5)
-rsi_period = st.sidebar.slider("RSI Period", 5, 30, 14)
-macd_fast = st.sidebar.slider("MACD Fast EMA", 5, 20, 12)
-macd_slow = st.sidebar.slider("MACD Slow EMA", 20, 40, 26)
-macd_signal = st.sidebar.slider("MACD Signal", 5, 20, 9)
-bb_period = st.sidebar.slider("Bollinger Period", 10, 30, 20)
-bb_std = st.sidebar.slider("Bollinger Std Dev", 1.0, 3.0, 2.0)
-
-# ---------------------------------
-# FETCH DATA
-# ---------------------------------
-df = fetch_data(interval, days)
-if df.empty:
-    st.error("⚠️ No data fetched for Bank Nifty. Try another interval or check your connection.")
-    st.stop()
-
-# ---------------------------------
-# INDICATOR CALCULATION
-# ---------------------------------
-df["RSI"] = rsi(df["Close"], rsi_period)
-df["MACD"], df["MACD_Signal"], df["MACD_Hist"] = macd(df["Close"], macd_fast, macd_slow, macd_signal)
-df["BB_Mid"], df["BB_Upper"], df["BB_Lower"] = bollinger(df["Close"], bb_period, bb_std)
-
-# ---------------------------------
-# SIGNAL CALCULATION (robust)
-# ---------------------------------
-for c in ["RSI", "MACD", "MACD_Signal"]:
-    df[c] = pd.to_numeric(df[c], errors="coerce")
-
-df["Buy"] = ((df["MACD"] > df["MACD_Signal"]) & (df["RSI"] > 55)).fillna(False).astype(bool)
-df["Sell"] = ((df["MACD"] < df["MACD_Signal"]) & (df["RSI"] < 45)).fillna(False).astype(bool)
-
-if df.shape[0] == 0:
-    st.error("No rows available after indicator calculation.")
-    st.stop()
-
-def last_bool(col: str) -> bool:
-    v = df[col].iloc[-1]
-    try:
-        return bool(v.item())
-    except Exception:
-        return bool(v)
-
-buy_signal = last_bool("Buy")
-sell_signal = last_bool("Sell")
-
-if buy_signal and not sell_signal:
-    signal = "BUY"
-elif sell_signal and not buy_signal:
-    signal = "SELL"
-else:
-    signal = "HOLD"
-
-# ---------------------------------
-# ALERTS
-# ---------------------------------
-if signal == "BUY":
-    st.toast("✅ **BUY signal detected!**", icon="✅")
-    st.markdown(
-        "<audio autoplay><source src='https://actions.google.com/sounds/v1/alarms/beep_short.ogg' type='audio/ogg'></audio>",
-        unsafe_allow_html=True,
-    )
-elif signal == "SELL":
-    st.toast("⚠️ **SELL signal detected!**", icon="⚠️")
-    st.markdown(
-        "<audio autoplay><source src='https://actions.google.com/sounds/v1/alarms/beep_short.ogg' type='audio/ogg'></audio>",
-        unsafe_allow_html=True,
-    )
-else:
-    st.toast("ℹ️ HOLD / Neutral zone", icon="ℹ️")
-
-# ---------------------------------
-# METRICS PANEL (safe conversions)
-# ---------------------------------
-latest = df.iloc[-1]
-close_val = latest.get("Close", np.nan)
-rsi_val = latest.get("RSI", np.nan)
-macd_val = latest.get("MACD", np.nan)
-
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Last Close", f"{float(close_val):.2f}" if pd.notna(close_val) else "—")
-col2.metric("RSI", f"{float(rsi_val):.1f}" if pd.notna(rsi_val) else "—")
-col3.metric("MACD", f"{float(macd_val):.2f}" if pd.notna(macd_val) else "—")
-col4.metric("Signal", signal)
-
-# ---------------------------------
-# CHART
-# ---------------------------------
-fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08)
-fig.add_trace(go.Candlestick(
-    x=df["Date"], open=df["Open"], high=df["High"], low=df["Low"], close=df["Close"], name="Price"
-), row=1, col=1)
-fig.add_trace(go.Scatter(x=df["Date"], y=df["BB_Upper"], name="BB Upper", line=dict(width=1)), row=1, col=1)
-fig.add_trace(go.Scatter(x=df["Date"], y=df["BB_Lower"], name="BB Lower", line=dict(width=1)), row=1, col=1)
-fig.add_trace(go.Scatter(x=df["Date"], y=df["MACD"], name="MACD"), row=2, col=1)
-fig.add_trace(go.Scatter(x=df["Date"], y=df["MACD_Signal"], name="Signal Line"), row=2, col=1)
-fig.add_trace(go.Bar(x=df["Date"], y=df["MACD_Hist"], name="MACD Hist", opacity=0.4), row=2, col=1)
-fig.update_layout(
-    xaxis_rangeslider_visible=False,
-    margin=dict(l=20, r=20, t=40, b=20),
-    height=700,
-)
-st.plotly_chart(fig, use_container_width=True)
-
-# ---------------------------------
-# DATA TABLE
-# ---------------------------------
-with st.expander("📊 Latest Data (last 20 rows)"):
-    st.dataframe(df.tail(20))
-
-# ---------------------------------
-# FOOTER
-# ---------------------------------
-st.caption("⚠️ For educational use only — not investment advice.")
+        df.rename(columns
