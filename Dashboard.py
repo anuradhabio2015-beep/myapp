@@ -4,17 +4,34 @@ import numpy as np
 import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import traceback
 
-st.set_page_config(page_title="Bank Nifty AI Assistant", page_icon="📈", layout="wide")
-st.title("📈 Bank Nifty — Daily AI Trading Assistant (Final Stable Build)")
+st.set_page_config(page_title="Bank Nifty Core", page_icon="📈", layout="wide")
+st.title("📈 Bank Nifty – Core Streamlit Dashboard")
 
-# -------------------------------  HELPERS  -------------------------------
-def show_error(e):
-    st.error("⚠️ An unexpected error occurred:")
-    st.code("".join(traceback.format_exception_only(type(e), e)))
+# ---------------------------------------------------------------------
+# 1️⃣  Data fetch
+# ---------------------------------------------------------------------
+def get_data(interval="15m", days=5):
+    ticker = "^NSEBANK"
+    start = datetime.now() - timedelta(days=days + 1)
+    df = yf.download(ticker, start=start, interval=interval, progress=False)
+    if df.empty:
+        st.error("No data returned from Yahoo Finance.")
+        st.stop()
 
+    df.reset_index(inplace=True)
+    if "Datetime" in df.columns:
+        df.rename(columns={"Datetime": "Date"}, inplace=True)
+    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df = df.dropna(subset=["Date"])
+    for c in ["Open", "High", "Low", "Close", "Volume"]:
+        df[c] = pd.to_numeric(df[c], errors="coerce")
+    df = df.dropna(subset=["Close"])
+    return df
+
+# ---------------------------------------------------------------------
+# 2️⃣  Indicators
+# ---------------------------------------------------------------------
 def ema(series, span): return series.ewm(span=span, adjust=False).mean()
 
 def rsi(series, period=14):
@@ -29,95 +46,59 @@ def macd(series, fast=12, slow=26, signal=9):
     signal_line = ema(macd_line, signal)
     return macd_line, signal_line, macd_line - signal_line
 
-def bollinger(series, period=20, std=2):
-    mid = series.rolling(period).mean()
-    sd = series.rolling(period).std()
-    return mid, mid + std*sd, mid - std*sd
-
-@st.cache_data(ttl=120)
-def fetch_data(interval="5m", days=5):
-    ticker = "^NSEBANK"
-    start = datetime.now() - timedelta(days=days + 1)
-    df = yf.download(ticker, start=start, interval=interval, progress=False)
-    if df.empty:
-        raise ValueError("No data received from Yahoo Finance.")
-    df.reset_index(inplace=True)
-
-    # ✅ Make sure a proper Date column exists
-    if "Datetime" in df.columns:
-        df.rename(columns={"Datetime": "Date"}, inplace=True)
-    elif "date" in df.columns:
-        df.rename(columns={"date": "Date"}, inplace=True)
-    elif "Date" not in df.columns:
-        df["Date"] = df.index
-
-    # Ensure numeric
-    for c in ["Open", "High", "Low", "Close", "Volume"]:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-    df.dropna(subset=["Close"], inplace=True)
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    df = df.dropna(subset=["Date"])
-    return df
-
-# -------------------------------  SIDEBAR  -------------------------------
-st.sidebar.header("⚙️ Settings")
+# ---------------------------------------------------------------------
+# 3️⃣  Sidebar
+# ---------------------------------------------------------------------
+st.sidebar.header("⚙️  Options")
 interval = st.sidebar.selectbox("Interval", ["5m","15m","30m","60m","1d"], index=1)
-days = st.sidebar.slider("Lookback (days)", 1, 30, 5)
+days = st.sidebar.slider("Lookback Days", 1, 30, 5)
 rsi_period = st.sidebar.slider("RSI Period", 5, 30, 14)
-macd_fast = st.sidebar.slider("MACD Fast EMA", 5, 20, 12)
-macd_slow = st.sidebar.slider("MACD Slow EMA", 20, 40, 26)
-macd_signal = st.sidebar.slider("MACD Signal EMA", 5, 20, 9)
-bb_period = st.sidebar.slider("Bollinger Period", 10, 30, 20)
-bb_std = st.sidebar.slider("Bollinger Std Dev", 1.0, 3.0, 2.0)
 
-# -------------------------------  MAIN  -------------------------------
+# ---------------------------------------------------------------------
+# 4️⃣  Main logic
+# ---------------------------------------------------------------------
 try:
-    df = fetch_data(interval, days)
-
-    # --- indicators ---
+    df = get_data(interval, days)
     df["RSI"] = rsi(df["Close"], rsi_period)
-    df["MACD"], df["MACD_Signal"], df["MACD_Hist"] = macd(df["Close"], macd_fast, macd_slow, macd_signal)
-    df["BB_Mid"], df["BB_Upper"], df["BB_Lower"] = bollinger(df["Close"], bb_period, bb_std)
+    df["MACD"], df["MACD_Signal"], df["MACD_Hist"] = macd(df["Close"])
 
-    # --- signals ---
-    df["Buy"]  = ((df["MACD"] > df["MACD_Signal"]) & (df["RSI"] > 55)).fillna(False)
-    df["Sell"] = ((df["MACD"] < df["MACD_Signal"]) & (df["RSI"] < 45)).fillna(False)
-    last = df.iloc[-1]
-    signal = "BUY" if last["Buy"] else "SELL" if last["Sell"] else "HOLD"
+    # Clean latest row
+    latest = df.iloc[-1]
+    close_val = float(latest["Close"])
+    rsi_val = float(latest["RSI"])
+    macd_val = float(latest["MACD"])
 
-    # --- alerts ---
-    st.toast(f"📢 Signal: {signal}", icon="✅" if signal=="BUY" else "⚠️" if signal=="SELL" else "ℹ️")
+    # -----------------------------------------------------------------
+    #  Metrics
+    # -----------------------------------------------------------------
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Last Close", f"{close_val:,.2f}")
+    col2.metric("RSI", f"{rsi_val:,.1f}")
+    col3.metric("MACD", f"{macd_val:,.2f}")
 
-    # --- metrics ---
-    col1,col2,col3,col4 = st.columns(4)
-    col1.metric("Last Close", f"{float(last['Close']):.2f}")
-    col2.metric("RSI", f"{float(last['RSI']):.1f}")
-    col3.metric("MACD", f"{float(last['MACD']):.2f}")
-    col4.metric("Signal", signal)
-
-    # --- chart ---
-    # ✅ Ensure x and y are list-like arrays
+    # -----------------------------------------------------------------
+    #  Chart
+    # -----------------------------------------------------------------
     xvals = df["Date"].tolist()
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.08)
+    fig = go.Figure()
     fig.add_trace(go.Candlestick(
         x=xvals,
         open=df["Open"].tolist(),
         high=df["High"].tolist(),
         low=df["Low"].tolist(),
         close=df["Close"].tolist(),
-        name="Price"), row=1, col=1)
-    fig.add_trace(go.Scatter(x=xvals, y=df["BB_Upper"].tolist(), name="BB Upper", line=dict(width=1)), row=1, col=1)
-    fig.add_trace(go.Scatter(x=xvals, y=df["BB_Lower"].tolist(), name="BB Lower", line=dict(width=1)), row=1, col=1)
-    fig.add_trace(go.Scatter(x=xvals, y=df["MACD"].tolist(), name="MACD"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=xvals, y=df["MACD_Signal"].tolist(), name="Signal Line"), row=2, col=1)
-    fig.add_trace(go.Bar(x=xvals, y=df["MACD_Hist"].tolist(), name="Histogram", opacity=0.4), row=2, col=1)
-    fig.update_layout(xaxis_rangeslider_visible=False,height=700,margin=dict(l=20,r=20,t=40,b=20))
-    st.plotly_chart(fig,use_container_width=True)
+        name="Bank Nifty"
+    ))
+    fig.update_layout(xaxis_rangeslider_visible=False, height=600)
+    st.plotly_chart(fig, use_container_width=True)
 
-    with st.expander("📊 Latest Data (20 rows)"):
+    # -----------------------------------------------------------------
+    #  Table
+    # -----------------------------------------------------------------
+    with st.expander("📊 Raw data (last 20 rows)"):
         st.dataframe(df.tail(20))
 
 except Exception as e:
-    show_error(e)
-
-st.caption("⚠️ For educational use only — not financial advice.")
+    import traceback
+    st.error("Unexpected error occurred:")
+    st.code("".join(traceback.format_exception_only(type(e), e)))
