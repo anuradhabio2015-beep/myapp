@@ -2,9 +2,9 @@ import streamlit as st
 
 st.set_page_config(page_title="MES App", layout="wide")
 
-# ---------------------------------------------------------
-# REMOVE DEFAULT STREAMLIT HEADER
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# REMOVE STREAMLIT DEFAULT HEADER
+#----------------------------------------------------------
 st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
@@ -13,9 +13,9 @@ footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# CUSTOM HEADER CSS
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# HEADER CSS
+#----------------------------------------------------------
 st.markdown("""
 <style>
 
@@ -35,12 +35,7 @@ st.markdown("""
     box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
 }
 
-/* LEFT SECTION */
-.header-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
+.header-left { display: flex; align-items: center; gap: 12px; }
 
 .header-logo {
     width: 40px;
@@ -54,7 +49,6 @@ st.markdown("""
     color: white;
 }
 
-/* CENTER ICON LINKS */
 .header-icons {
     display: flex;
     align-items: center;
@@ -68,22 +62,15 @@ st.markdown("""
     font-weight: 600;
 }
 
-.icon-link:hover {
-    text-decoration: underline;
-}
+.icon-link:hover { text-decoration: underline; }
 
-/* DROPDOWN MENU */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
+.dropdown { position: relative; display: inline-block; }
 
 .dropdown-btn {
     background: none;
     border: none;
     color: white;
     font-size: 16px;
-    font-weight: 600;
     cursor: pointer;
 }
 
@@ -103,23 +90,15 @@ st.markdown("""
 .dropdown-content a {
     padding: 10px 14px;
     display: block;
-    text-decoration: none;
-    font-size: 14px;
     color: black;
+    text-decoration: none;
 }
 
-.dropdown-content a:hover {
-    background-color: #eeeeee;
-}
+.dropdown-content a:hover { background-color: #eeeeee; }
 
-.dropdown:hover .dropdown-content {
-    display: block;
-}
+.dropdown:hover .dropdown-content { display: block; }
 
-/* PROFILE DROPDOWN */
-.profile-dropdown {
-    position: relative;
-}
+.profile-dropdown { position: relative; }
 
 .profile-content {
     display: none;
@@ -141,36 +120,28 @@ st.markdown("""
     text-decoration: none;
 }
 
-.profile-content a:hover {
-    background-color: #eeeeee;
-}
+.profile-content a:hover { background-color: #eeeeee; }
 
-.profile-dropdown:hover .profile-content {
-    display: block;
-}
+.profile-dropdown:hover .profile-content { display: block; }
 
-/* PUSH PAGE DOWN */
-.block-container {
-    padding-top: 110px !important;
-}
+.block-container { padding-top: 110px !important; }
 
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# CUSTOM HEADER HTML
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# HEADER HTML
+#----------------------------------------------------------
 st.markdown("""
 <div class="custom-header">
 
-    <!-- LEFT SECTION -->
     <div class="header-left">
         <img class="header-logo" src="https://via.placeholder.com/40" />
         <span class="header-title">MES Application</span>
     </div>
 
-    <!-- CENTER NAVIGATION -->
     <div class="header-icons">
+
         <a class="icon-link" href="?page=dashboard">🏠 Home</a>
 
         <div class="dropdown">
@@ -185,14 +156,12 @@ st.markdown("""
         <a class="icon-link" href="?page=settings">⚙️ Settings</a>
     </div>
 
-    <!-- NOTIFICATION BELL -->
     <div style="position:relative;">
         <button class="icon-link" onclick="document.querySelector('#alerts').scrollIntoView();">
             🔔 Notifications
         </button>
     </div>
 
-    <!-- PROFILE MENU -->
     <div class="profile-dropdown">
         <button class="dropdown-btn">👤 Rahul ▼</button>
         <div class="profile-content">
@@ -204,51 +173,45 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------------------------------------------------
-# PAGE ROUTER
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# ROUTER
+#----------------------------------------------------------
 params = st.experimental_get_query_params()
 page = params.get("page", ["dashboard"])[0]
 
-# ---------------------------------------------------------
-# PAGE CONTENT
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# CONTENT
+#----------------------------------------------------------
 if page == "dashboard":
     st.header("📊 Dashboard")
-    st.write("Dashboard content goes here...")
 
 elif page == "daily":
     st.header("📝 Daily Report")
-    st.write("Daily Report content goes here...")
 
 elif page == "shift":
     st.header("⏱ Shift Report")
-    st.write("Shift Report content goes here...")
 
 elif page == "quality":
     st.header("🔍 Quality Report")
-    st.write("Quality content goes here...")
 
 elif page == "settings":
-    st.header("⚙ Settings")
-    st.write("Settings content goes here...")
+    st.header("⚙️ Settings")
 
 elif page == "profile":
     st.header("👤 Profile")
-    st.write("User profile details...")
 
 elif page == "logout":
-    st.warning("You have been logged out.")
+    st.warning("Logged out")
 
-# ---------------------------------------------------------
-# ALERT SECTION
-# ---------------------------------------------------------
+#----------------------------------------------------------
+# ALERT PLACEHOLDER
+#----------------------------------------------------------
 st.markdown("<h3 id='alerts'>🔔 Notifications</h3>", unsafe_allow_html=True)
-st.info("No notifications yet.")
+st.info("No notifications.")
 
-# ---------------------------------------------------------
+#----------------------------------------------------------
 # FOOTER
-# ---------------------------------------------------------
+#----------------------------------------------------------
 st.markdown("""
 <br><br><br>
 <div style="
