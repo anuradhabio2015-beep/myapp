@@ -14,7 +14,7 @@ st.markdown(hide_default, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# FIXED CUSTOM HEADER
+# FIXED CUSTOM HEADER WITH TAB SWITCHING
 # -------------------------------------------------------
 custom_header = """
     <style>
@@ -40,6 +40,7 @@ custom_header = """
             text-decoration: none;
             font-size: 16px;
             font-weight: 500;
+            cursor: pointer;
         }
         .header-links a:hover {
             text-decoration: underline;
@@ -52,36 +53,40 @@ custom_header = """
     <div class="custom-header">
         <div>MES Application</div>
         <div class="header-links">
-            <a href="?page=dashboard">Dashboard</a>
-            <a href="?page=reports">Reports</a>
-            <a href="?page=settings">Settings</a>
+            <a onclick="switchTab(0)">Dashboard</a>
+            <a onclick="switchTab(1)">Reports</a>
+            <a onclick="switchTab(2)">Settings</a>
         </div>
     </div>
+
+    <script>
+        function switchTab(index) {
+            const tabs = window.parent.document.querySelectorAll('.stTabs li');
+            if (tabs && tabs[index]) {
+                tabs[index].click();
+            }
+        }
+    </script>
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# NEW STREAMLIT QUERY PARAMS API (NO WARNING)
+# MAIN TABS (CONTROLLED BY HEADER)
 # -------------------------------------------------------
-params = st.query_params
-page = params.get("page", "dashboard")     # FIXED
+main_tabs = st.tabs(["Dashboard", "Reports", "Settings"])
 
-
-# -------------------------------------------------------
-# MAIN CONTENT
-# -------------------------------------------------------
-if page == "dashboard":
+with main_tabs[0]:
     st.header("📊 Dashboard")
-    tab1, tab2 = st.tabs(["Production", "Quality"])
-    tab1.write("Production KPIs...")
-    tab2.write("Quality KPIs...")
+    t1, t2 = st.tabs(["Production", "Quality"])
+    t1.write("Production KPIs...")
+    t2.write("Quality KPIs...")
 
-elif page == "reports":
+with main_tabs[1]:
     st.header("📁 Reports")
     st.write("Report listing...")
 
-elif page == "settings":
+with main_tabs[2]:
     st.header("⚙️ Settings")
     st.write("System configuration...")
 
