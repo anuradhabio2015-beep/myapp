@@ -1,171 +1,93 @@
 import streamlit as st
+from streamlit_option_menu import option_menu
 
-# -----------------------------------
-# Remove Streamlit Default UI
-# -----------------------------------
-st.markdown("""
+# -------------------------------------------------------
+# REMOVE DEFAULT STREAMLIT HEADER & FOOTER
+# -------------------------------------------------------
+hide_default = """
 <style>
-    header[data-testid="stHeader"] {display: none;}
-    [data-testid="stToolbar"] {display: none;}
-    #MainMenu {visibility:hidden;}
-    footer {visibility:hidden;}
-</style>
-""", unsafe_allow_html=True)
-
-
-
-# -----------------------------------
-# Groww Sidebar Style (Vertical Navbar)
-# -----------------------------------
-groww_sidebar_css = """
-<style>
-
-[data-testid="stSidebar"] {
-    background-color: #ffffff !important;
-    padding-top: 20px;
-    border-right: 1px solid #e5e5e5;
-    width: 220px !important;
-}
-
-.sidebar-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #1f4df5;
-    margin-bottom: 30px;
-    margin-left: 10px;
-}
-
-.nav-item {
-    font-size: 16px;
-    padding: 10px 18px;
-    border-radius: 10px;
-    margin-bottom: 5px;
-    cursor: pointer;
-    color: #333333;
-}
-
-.nav-item:hover {
-    background-color: #f2f6ff;
-    color: #1f4df5;
-}
-
-.nav-selected {
-    background-color: #e7edff;
-    color: #1f4df5;
-    font-weight: 600;
-}
-
+header {visibility: hidden;}
+footer {visibility: hidden;}
+#MainMenu {visibility: hidden;}
 </style>
 """
+st.markdown(hide_default, unsafe_allow_html=True)
 
-st.markdown(groww_sidebar_css, unsafe_allow_html=True)
+# -------------------------------------------------------
+# CUSTOM HEADER (TOP BAR)
+# -------------------------------------------------------
+custom_header = """
+<style>
+.custom-header {
+    background-color: #1a73e8;
+    padding: 12px 25px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 22px;
+    font-weight: 700;
+}
+</style>
+
+<div class="custom-header">
+🚀 MES Application – Smart Factory Dashboard
+</div>
+"""
+st.markdown(custom_header, unsafe_allow_html=True)
 
 
-
-# -----------------------------------
-# Sidebar Menu
-# -----------------------------------
+# -------------------------------------------------------
+# SIDE MENU
+# -------------------------------------------------------
 with st.sidebar:
-    st.markdown('<div class="sidebar-title">Groww Dashboard</div>', unsafe_allow_html=True)
+    st.image("https://static.streamlit.io/examples/dice.jpg", width=140)
+    st.markdown("### Navigation")
 
-    menu_items = [
-        "🏠 Home",
-        "📈 Markets",
-        "💼 Portfolio",
-        "🔍 Research",
-        "⚙️ Settings",
-        "🤖 AI Insights"
-    ]
-
-    selected_menu = st.radio(
-        "",
-        menu_items,
-        label_visibility="collapsed"
+    selected = option_menu(
+        menu_title="",  
+        options=["Dashboard", "Orders", "Production", "Quality", "Settings"],
+        icons=["bar-chart", "list-task", "cpu", "check2-square", "gear"],
+        menu_icon="cast",
+        default_index=0,
     )
 
+# -------------------------------------------------------
+# BODY CONTENT
+# -------------------------------------------------------
+st.write(f"### You selected: **{selected}**")
+
+if selected == "Dashboard":
+    st.info("Dashboard KPIs & charts here…")
+elif selected == "Orders":
+    st.success("Order Management UI…")
+elif selected == "Production":
+    st.warning("Production Status UI…")
+elif selected == "Quality":
+    st.error("Quality Dashboard UI…")
+elif selected == "Settings":
+    st.write("Settings page…")
 
 
-# -----------------------------------
-# Top Groww Header with Search Bar
-# -----------------------------------
-st.markdown("""
+# -------------------------------------------------------
+# CUSTOM FOOTER (FIXED BOTTOM)
+# -------------------------------------------------------
+custom_footer = """
 <style>
-.top-header {
-    background-color: #ffffff;
-    padding: 15px 25px;
-    border-bottom: 1px solid #e6e6e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 70px;
-    position: sticky;
-    top: 0;
-    z-index: 999;
-}
-
-.search-box {
-    flex: 1;
-    max-width: 400px;
-}
-
-.search-input {
+.custom-footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    padding: 10px 16px;
-    border-radius: 12px;
-    border: 1px solid #dcdcdc;
-    font-size: 16px;
+    background-color: #1a73e8;
+    color: white;
+    text-align: center;
+    padding: 8px 0;
+    font-size: 14px;
 }
-
-.search-input:focus {
-    outline: none;
-    border: 1px solid #1f4df5;
-}
-
-.profile-icon {
-    font-size: 22px;
-    margin-left: 25px;
-    cursor: pointer;
-}
-
 </style>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<div class="top-header">
-    <div class="search-box">
-        <input class="search-input" type="text" placeholder="Search stocks, mutual funds, ETFs...">
-    </div>
-    <div class="profile-icon">👤</div>
+<div class="custom-footer">
+© 2025 MES System | Designed & Developed by Rahul
 </div>
-""", unsafe_allow_html=True)
-
-
-
-# -----------------------------------
-# Page Content Renderer
-# -----------------------------------
-st.write("")
-
-if selected_menu == "🏠 Home":
-    st.header("🏠 Home")
-    st.write("Welcome to your Groww-style dashboard!")
-
-elif selected_menu == "📈 Markets":
-    st.header("📈 Markets")
-    st.write("View live markets, indices, and top gainers.")
-
-elif selected_menu == "💼 Portfolio":
-    st.header("💼 Portfolio")
-    st.write("Your holdings will appear here.")
-
-elif selected_menu == "🔍 Research":
-    st.header("🔍 Research")
-    st.write("Search for stocks, mutual funds, and ETFs.")
-
-elif selected_menu == "⚙️ Settings":
-    st.header("⚙️ Settings")
-    st.write("Manage your preferences.")
-
-elif selected_menu == "🤖 AI Insights":
-    st.header("🤖 AI Insights")
-    st.write("Your AI market assistant is ready!")
+"""
+st.markdown(custom_footer, unsafe_allow_html=True)
