@@ -1,274 +1,232 @@
 import streamlit as st
 
-# -------------------------------------------------------
-# REMOVE STREAMLIT DEFAULT HEADER/FOOTER
-# -------------------------------------------------------
-hide_default = """
-    <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_default, unsafe_allow_html=True)
+# Hybrid MES + Glassmorphic UI — Single file
+# Copy / paste this entire file into Dashboard.py and run with Streamlit.
 
-# -------------------------------------------------------
-# ROUTING
-# -------------------------------------------------------
+st.set_page_config(page_title="MES Hybrid UI", page_icon=":factory:", layout="wide")
+
+# -----------------------------
+# Hide Streamlit default chrome
+# -----------------------------
+HIDE = """
+<style>
+    /* hide built-in header/footer */
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {display: none}
+</style>
+"""
+st.markdown(HIDE, unsafe_allow_html=True)
+
+# -----------------------------
+# Routing: page & sub
+# -----------------------------
 params = st.query_params
 page = params.get("page", "dashboard")
 sub  = params.get("sub", "")
 
-# -------------------------------------------------------
-# TOP HEADER + TOP SUBMENU (use token placeholders)
-# -------------------------------------------------------
-top_header = """
-    <style>
-        .top-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 64px;
-            background-color: #2c6bed;
-            color: white;
-            padding: 12px 20px;
-            font-size: 20px;
-            font-weight: 700;
-            z-index: 9999;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+# -----------------------------
+# CSS (no .format or f-strings) — safe
+# -----------------------------
+CSS = """
+<style>
+:root{ --primary: #2c6bed; --muted: #f5f7fb; }
+/* Glass header */
+.custom-glass-header{
+  position: fixed; top: 12px; left: 12px; right: 12px;
+  display:flex; align-items:center; gap:16px; padding:14px 20px;
+  border-radius:14px; background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px); box-shadow: 0 8px 30px rgba(10,20,50,0.08);
+  z-index: 9999;
+}
+.custom-glass-header .brand{ font-weight:800; font-size:20px; color: #123; }
+.custom-glass-header .tag{ color:#445; font-size:13px; }
+.custom-glass-header .links{ margin-left:auto; display:flex; gap:10px; align-items:center; }
+.custom-glass-header .links a{ text-decoration:none; padding:8px 12px; border-radius:8px; color:#123; font-weight:600 }
+.custom-glass-header .links a:hover{ background: rgba(44,107,237,0.08); }
 
-        .top-submenu {
-            position: fixed;
-            top: 64px;
-            left: 230px;
-            right: 0;
-            height: 44px;
-            background: #f7f9ff;
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
-            gap: 16px;
-            border-bottom: 1px solid #e6e6e6;
-            z-index: 9998;
-        }
+/* Left sidebar */
+.left-menu{
+  position: fixed; top: 120px; left: 12px; width: 240px; bottom: 12px;
+  background: rgba(255,255,255,0.85); border-radius:12px; padding:14px;
+  box-shadow: 3px 6px 24px rgba(10,20,50,0.06); overflow:auto; z-index:9998;
+}
+.left-menu .group{ margin-bottom:12px }
+.left-menu summary{ list-style:none; cursor:pointer; padding:10px 12px; border-radius:8px; font-weight:700; }
+.left-menu summary:hover{ background:#f0f6ff }
+.left-menu a{ display:block; padding:8px 14px; margin:6px 6px; border-radius:8px; text-decoration:none; color:#123; font-weight:600 }
+.left-menu a:hover{ background:#eef4ff }
+.left-menu .active-main{ background: var(--primary); color:white !important }
+.left-menu .sub-active{ background: #1f66d6; color:white !important }
 
-        .top-submenu a {
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: #333;
-            font-weight: 600;
-        }
+/* Top horizontal submenu */
+.top-submenu{ position: fixed; top: 86px; left: 272px; right: 20px; height:44px; display:flex; gap:12px; align-items:center; padding-left:12px; z-index:9997 }
+.top-submenu a{ text-decoration:none; padding:8px 12px; border-radius:8px; color:#333; font-weight:700 }
+.top-submenu a.active{ background: var(--primary); color:white }
 
-        .top-submenu a.active {
-            background: #2c6bed;
-            color: white;
-        }
+/* shift main content to the right and below header+submenu */
+.block-container{ margin-left: 272px !important; padding-top: 160px !important }
 
-        .block-container {
-            padding-top: 120px !important;
-            margin-left: 230px !important;
-        }
-    </style>
+/* Footer area aligned to content */
+.custom-footer{ position: fixed; bottom: 12px; left: 272px; right: 20px; padding:10px 12px; background: rgba(250,250,255,0.9); border-radius:10px; box-shadow: 0 6px 22px rgba(10,20,50,0.04); text-align:center; z-index:9996 }
 
-    <div class="top-header">
-        <div>MES Application</div>
-        <div style="margin-right: 30px;">Dashboard | Reports | Settings</div>
-    </div>
+/* Toggle button (small) */
+.toggle-btn{ position: fixed; top: 140px; left: 12px; width:34px; height:34px; border-radius:8px; background:white; box-shadow: 0 6px 18px rgba(0,0,0,0.08); display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10000 }
+.toggle-btn:hover{ transform: scale(1.03) }
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
 
-    <div class="top-submenu">
-        <a href="?page=dashboard&sub=overview" class="%%DASH_OVERVIEW%%">Overview</a>
-        <a href="?page=dashboard&sub=stations" class="%%DASH_STATIONS%%">Stations</a>
+# -----------------------------
+# Header HTML (insert logo URL via replace token)
+# -----------------------------
+LOGO = "https://placehold.co/64x64/png?text=Logo"
+header_html = """
+<div class="custom-glass-header">
+  <img src="%%LOGO%%" width="56" height="56" style="border-radius:10px;" />
+  <div>
+    <div class="brand">MES Hybrid Application</div>
+    <div class="tag">Hybrid — enterprise layout with modern styling</div>
+  </div>
+  <div class="links">
+    <a href="?page=dashboard">Dashboard</a>
+    <a href="?page=reports">Reports</a>
+    <a href="?page=settings">Settings</a>
+  </div>
+</div>
+"""
+header_html = header_html.replace("%%LOGO%%", LOGO)
+st.markdown(header_html, unsafe_allow_html=True)
 
-        <a href="?page=reports&sub=daily" class="%%REPORTS_DAILY%%">Daily</a>
-        <a href="?page=reports&sub=monthly" class="%%REPORTS_MONTHLY%%">Monthly</a>
+# -----------------------------
+# Toggle button (JS used for menu collapse) — minimal and safe
+# -----------------------------
+# We'll use a tiny inline script to toggle a class on the left-menu div.
+# This is fine in Streamlit when rendered via unsafe_allow_html.
 
-        <a href="?page=settings&sub=users" class="%%SETTINGS_USERS%%">Users</a>
-        <a href="?page=settings&sub=system" class="%%SETTINGS_SYSTEM%%">System</a>
-    </div>
+toggle_html = """
+<div class="toggle-btn" onclick="(function(){var m=document.getElementById('leftMenu'); if(!m) return; m.classList.toggle('collapsed'); var cont=document.getElementsByClassName('block-container')[0]; if(!cont) return; if(m.classList.contains('collapsed')){ m.style.marginLeft='-220px'; cont.style.marginLeft='48px'; } else { m.style.marginLeft='0px'; cont.style.marginLeft='272px'; } })()">☰</div>
+"""
+st.markdown(toggle_html, unsafe_allow_html=True)
+
+# -----------------------------
+# Left menu (collapsible groups using <details>)
+# We'll set "open" for the active page group.
+# -----------------------------
+left_menu_html = """
+<div id="leftMenu" class="left-menu">
+  <div style="font-weight:800; margin-bottom:12px; color:#123">MES Navigation</div>
+
+  <details {DASH_OPEN}>
+    <summary class="{DASH_MAIN}">📊 Dashboard</summary>
+    <a href="?page=dashboard&sub=overview" class="{DASH_OV}">Overview</a>
+    <a href="?page=dashboard&sub=stations" class="{DASH_ST}">Stations</a>
+  </details>
+
+  <details {REP_OPEN}>
+    <summary class="{REP_MAIN}">📁 Reports</summary>
+    <a href="?page=reports&sub=daily" class="{REP_D}">Daily</a>
+    <a href="?page=reports&sub=monthly" class="{REP_M}">Monthly</a>
+  </details>
+
+  <details {SET_OPEN}>
+    <summary class="{SET_MAIN}">⚙️ Settings</summary>
+    <a href="?page=settings&sub=users" class="{SET_U}">Users</a>
+    <a href="?page=settings&sub=system" class="{SET_S}">System</a>
+  </details>
+</div>
 """
 
-# compute token values for top submenu
-top_header = top_header.replace("%%DASH_OVERVIEW%%", "active" if page=="dashboard" and sub in ["overview", ""] else "")
-top_header = top_header.replace("%%DASH_STATIONS%%", "active" if page=="dashboard" and sub=="stations" else "")
-top_header = top_header.replace("%%REPORTS_DAILY%%", "active" if page=="reports" and sub=="daily" else "")
-top_header = top_header.replace("%%REPORTS_MONTHLY%%", "active" if page=="reports" and sub=="monthly" else "")
-top_header = top_header.replace("%%SETTINGS_USERS%%", "active" if page=="settings" and sub=="users" else "")
-top_header = top_header.replace("%%SETTINGS_SYSTEM%%", "active" if page=="settings" and sub=="system" else "")
+# compute tokens
+left_menu_html = left_menu_html.replace('{DASH_OPEN}', 'open' if page=='dashboard' else '')
+left_menu_html = left_menu_html.replace('{REP_OPEN}', 'open' if page=='reports' else '')
+left_menu_html = left_menu_html.replace('{SET_OPEN}', 'open' if page=='settings' else '')
 
-st.markdown(top_header, unsafe_allow_html=True)
+left_menu_html = left_menu_html.replace('{DASH_MAIN}', 'active-main' if page=='dashboard' else '')
+left_menu_html = left_menu_html.replace('{REP_MAIN}',  'active-main' if page=='reports' else '')
+left_menu_html = left_menu_html.replace('{SET_MAIN}',  'active-main' if page=='settings' else '')
 
-# -------------------------------------------------------
-# LEFT SIDEBAR (use token placeholders again)
-# -------------------------------------------------------
-left_menu = """
-    <style>
-        .left-menu {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 230px;
-            height: 100%;
-            background: #f5f7ff;
-            padding-top: 12px;
-            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
-            z-index: 9998;
-            overflow: auto;
-        }
+left_menu_html = left_menu_html.replace('{DASH_OV}', 'sub-active' if page=='dashboard' and sub in ('overview','') else '')
+left_menu_html = left_menu_html.replace('{DASH_ST}', 'sub-active' if page=='dashboard' and sub=='stations' else '')
 
-        .brand {
-            padding: 14px 18px;
-            font-size: 18px;
-            font-weight: 800;
-            color: #2c6bed;
-        }
+left_menu_html = left_menu_html.replace('{REP_D}', 'sub-active' if page=='reports' and sub=='daily' else '')
+left_menu_html = left_menu_html.replace('{REP_M}', 'sub-active' if page=='reports' and sub=='monthly' else '')
 
-        details {
-            margin: 6px 10px;
-            padding: 4px;
-        }
+left_menu_html = left_menu_html.replace('{SET_U}', 'sub-active' if page=='settings' and sub=='users' else '')
+left_menu_html = left_menu_html.replace('{SET_S}', 'sub-active' if page=='settings' and sub=='system' else '')
 
-        summary {
-            padding: 10px 12px;
-            font-weight: 700;
-            cursor: pointer;
-            border-radius: 6px;
-            list-style: none;
-        }
+st.markdown(left_menu_html, unsafe_allow_html=True)
 
-        summary:hover {
-            background: #dfe8ff;
-        }
+# -----------------------------
+# Top horizontal submenu (mirrors left sub-items)
+# -----------------------------
+top_sub = """
+<div class="top-submenu">
+  <a href="?page=dashboard&sub=overview" class="{T_D_OV}">Overview</a>
+  <a href="?page=dashboard&sub=stations" class="{T_D_ST}">Stations</a>
 
-        .sub-item {
-            display: block;
-            padding: 8px 24px;
-            text-decoration: none;
-            color: #222;
-            margin: 4px 0;
-            border-radius: 6px;
-            font-weight: 600;
-        }
+  <a href="?page=reports&sub=daily" class="{T_R_D}">Daily</a>
+  <a href="?page=reports&sub=monthly" class="{T_R_M}">Monthly</a>
 
-        .sub-item:hover {
-            background: #edf2ff;
-        }
-
-        .active-main {
-            background: #2c6bed !important;
-            color: white !important;
-        }
-
-        .sub-active {
-            background: #1f66d6 !important;
-            color: white !important;
-        }
-    </style>
-
-    <div class="left-menu">
-        <div class="brand">MES Application</div>
-
-        <details %%DASH_OPEN%%>
-            <summary class="%%DASH_MAIN_ACTIVE%%">📊 Dashboard</summary>
-            <a href="?page=dashboard&sub=overview" class="sub-item %%DASH_OV%%">Overview</a>
-            <a href="?page=dashboard&sub=stations" class="sub-item %%DASH_ST%%">Stations</a>
-        </details>
-
-        <details %%REP_OPEN%%>
-            <summary class="%%REP_MAIN_ACTIVE%%">📁 Reports</summary>
-            <a href="?page=reports&sub=daily" class="sub-item %%REP_D%%">Daily</a>
-            <a href="?page=reports&sub=monthly" class="sub-item %%REP_M%%">Monthly</a>
-        </details>
-
-        <details %%SET_OPEN%%>
-            <summary class="%%SET_MAIN_ACTIVE%%">⚙️ Settings</summary>
-            <a href="?page=settings&sub=users" class="sub-item %%SET_U%%">Users</a>
-            <a href="?page=settings&sub=system" class="sub-item %%SET_S%%">System</a>
-        </details>
-    </div>
+  <a href="?page=settings&sub=users" class="{T_S_U}">Users</a>
+  <a href="?page=settings&sub=system" class="{T_S_S}">System</a>
+</div>
 """
 
-# compute left menu tokens
-# open the group if it's the current page, otherwise closed
-left_menu = left_menu.replace("%%DASH_OPEN%%", "open" if page=="dashboard" else "")
-left_menu = left_menu.replace("%%REP_OPEN%%", "open" if page=="reports" else "")
-left_menu = left_menu.replace("%%SET_OPEN%%", "open" if page=="settings" else "")
+top_sub = top_sub.replace('{T_D_OV}', 'active' if page=='dashboard' and sub in ('overview','') else '')
+top_sub = top_sub.replace('{T_D_ST}', 'active' if page=='dashboard' and sub=='stations' else '')
 
-left_menu = left_menu.replace("%%DASH_MAIN_ACTIVE%%", "active-main" if page=="dashboard" else "")
-left_menu = left_menu.replace("%%REP_MAIN_ACTIVE%%", "active-main" if page=="reports" else "")
-left_menu = left_menu.replace("%%SET_MAIN_ACTIVE%%", "active-main" if page=="settings" else "")
+top_sub = top_sub.replace('{T_R_D}', 'active' if page=='reports' and sub=='daily' else '')
+top_sub = top_sub.replace('{T_R_M}', 'active' if page=='reports' and sub=='monthly' else '')
 
-left_menu = left_menu.replace("%%DASH_OV%%", "sub-active" if page=="dashboard" and sub in ["overview", ""] else "")
-left_menu = left_menu.replace("%%DASH_ST%%", "sub-active" if page=="dashboard" and sub=="stations" else "")
+top_sub = top_sub.replace('{T_S_U}', 'active' if page=='settings' and sub=='users' else '')
+top_sub = top_sub.replace('{T_S_S}', 'active' if page=='settings' and sub=='system' else '')
 
-left_menu = left_menu.replace("%%REP_D%%", "sub-active" if page=="reports" and sub=="daily" else "")
-left_menu = left_menu.replace("%%REP_M%%", "sub-active" if page=="reports" and sub=="monthly" else "")
+st.markdown(top_sub, unsafe_allow_html=True)
 
-left_menu = left_menu.replace("%%SET_U%%", "sub-active" if page=="settings" and sub=="users" else "")
-left_menu = left_menu.replace("%%SET_S%%", "sub-active" if page=="settings" and sub=="system" else "")
+# -----------------------------
+# MAIN CONTENT — placed to the right and below header/submenu
+# -----------------------------
+# show a clean title and content area
+title_text = page.capitalize() + (f" — {sub.capitalize()}" if sub else "")
+st.title(title_text)
 
-st.markdown(left_menu, unsafe_allow_html=True)
+if page == 'dashboard':
+    if sub in ('overview',''):
+        st.header('Overview')
+        st.write('Summary KPIs, throughput, OEE, etc.')
+    elif sub == 'stations':
+        st.header('Stations')
+        st.write('Station list, status, alarms, cycle times.')
 
-# -------------------------------------------------------
-# MAIN CONTENT
-# -------------------------------------------------------
-# Title shown on the content area
-display_title = f"{page.capitalize()}" + (f" — {sub.capitalize()}" if sub else "")
-st.title(display_title)
+elif page == 'reports':
+    if sub == 'daily':
+        st.header('Daily Reports')
+        st.write('Daily production, shift summary.')
+    elif sub == 'monthly':
+        st.header('Monthly Reports')
+        st.write('Monthly trends, paretos, scrap analysis.')
 
-if page == "dashboard":
-    if sub in ["overview", ""]:
-        st.subheader("Overview")
-        st.write("Summary KPIs, throughput, OEE, etc.")
-    elif sub == "stations":
-        st.subheader("Stations")
-        st.write("Station list, status, alarms, cycle times.")
-
-elif page == "reports":
-    st.subheader("Reports")
-    if sub == "daily":
-        st.write("Daily production, shift summary.")
-    elif sub == "monthly":
-        st.write("Monthly trends, paretos, scrap analysis.")
-    else:
-        st.write("Select a report from the submenu.")
-
-elif page == "settings":
-    st.subheader("Settings")
-    if sub == "users":
-        st.write("Create / edit users, roles, permissions.")
-    elif sub == "system":
-        st.write("Integrations, PLC connections, system params.")
-    else:
-        st.write("Select a settings option from the submenu.")
+elif page == 'settings':
+    if sub == 'users':
+        st.header('User Management')
+        st.write('Create / edit users, roles, permissions.')
+    elif sub == 'system':
+        st.header('System Configuration')
+        st.write('Integrations, PLC connections, system params.')
 
 else:
-    st.write("Page not found — use the left menu.")
+    st.write('Page not found — use the left menu.')
 
-# -------------------------------------------------------
-# FOOTER (aligned with content area)
-# -------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 230px;
-            width: calc(100% - 230px);
-            text-align: center;
-            background: #e8ecff;
-            padding: 8px;
-            border-top: 1px solid #d0d7ff;
-            color:#333;
-            z-index: 9996;
-        }
-    </style>
-    <div class="footer">© 2025 MES System | Streamlit UI</div>
-    """,
-    unsafe_allow_html=True,
-)
+# -----------------------------
+# Footer aligned with content
+# -----------------------------
+st.markdown('\n')
+st.markdown("""
+<div class='custom-footer'>© 2025 MES Hybrid — Streamlit UI</div>
+""", unsafe_allow_html=True)
+
+# -----------------------------
+# End of file
+# -----------------------------
