@@ -12,14 +12,16 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
-# -------------------------------------------------------
-# READ ACTIVE PAGE FROM URL
-# -------------------------------------------------------
-params = st.experimental_get_query_params()
-active_page = params.get("page", ["dashboard"])[0]
 
 # -------------------------------------------------------
-# TOP HEADER (NO JS, PURE LINKS)
+# READ ACTIVE PAGE FROM st.query_params  (NEW API)
+# -------------------------------------------------------
+params = st.query_params
+active_page = params.get("page", "dashboard")
+
+
+# -------------------------------------------------------
+# CUSTOM HEADER WITH PURE LINK NAVIGATION
 # -------------------------------------------------------
 custom_header = f"""
     <style>
@@ -67,6 +69,7 @@ custom_header = f"""
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
+
 # -------------------------------------------------------
 # PAGE CONTENT
 # -------------------------------------------------------
@@ -84,8 +87,9 @@ elif active_page == "settings":
     st.header("⚙️ Settings")
     st.write("System configuration…")
 
+
 # -------------------------------------------------------
-# FOOTER
+# CUSTOM FOOTER
 # -------------------------------------------------------
 custom_footer = """
     <style>
