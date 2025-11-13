@@ -1,132 +1,172 @@
 import streamlit as st
 
 # ------------------------------------------------------
-# OPTION A — TRUE TAB NAVIGATION (NO URL ROUTING)
-# Clean, stable, modern MES UI using Streamlit Tabs
+# MASTER CONFIG
 # ------------------------------------------------------
-
-st.set_page_config(page_title="MES Hybrid Tabs UI", page_icon=":factory:", layout="wide")
+st.set_page_config(page_title="MES Hybrid Pro UI", page_icon="🧭", layout="wide")
 
 # ------------------------------------------------------
-# HIDE STREAMLIT DEFAULT CHROME
+# REMOVE STREAMLIT DEFAULT CHROME
 # ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-        [data-testid="stToolbar"] {display:none !important;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+header {visibility: hidden;}
+footer {visibility: hidden;}
+[data-testid="stToolbar"] {display:none;}
+</style>
+""", unsafe_allow_html=True)
 
-# ------------------------------------------------------
-# CUSTOM CLEAN HEADER
-# ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        .app-header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 78px;
-            background: white;
-            display: flex;
-            align-items: center;
-            padding: 12px 26px;
-            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-            z-index: 9999;
-        }
-        .app-header-title {
-            font-size: 24px;
-            font-weight: 800;
-            margin-left: 12px;
-        }
-        .block-container {
-            padding-top: 120px !important;
-        }
-    </style>
-    <div class="app-header">
-        <img src="https://placehold.co/60x60?text=Logo" style="border-radius:10px" />
-        <div class="app-header-title">MES Hybrid System — TAB Mode</div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+# ======================================================
+# HEADER (Modern Glass/Hybrid)
+# ======================================================
+st.markdown("""
+<style>
+.top-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 80px;
+    padding: 14px 30px;
+    display: flex;
+    align-items: center;
+    background: white;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    z-index: 9999;
+}
+.top-header img {
+    height: 50px;
+    width: 50px;
+    border-radius: 10px;
+    margin-right: 15px;
+}
+.top-title { font-size: 24px; font-weight: 800; color:#111; }
+.block-container { padding-top: 130px !important; margin-left: 220px !important; }
+</style>
 
-# ------------------------------------------------------
-# TOP‑LEVEL TABS (Dashboard | Reports | Settings)
-# ------------------------------------------------------
-main_tabs = st.tabs(["Dashboard", "Reports", "Settings"])
+<div class="top-header">
+    <img src="https://placehold.co/60x60?text=LOGO"/>
+    <div class="top-title">MES Hybrid System (Tabs + Sidebar)</div>
+</div>
+""", unsafe_allow_html=True)
 
-# ------------------------------------------------------
-# DASHBOARD PAGE
-# ------------------------------------------------------
+# ======================================================
+# SIDEBAR (Fixed vertical navigation)
+# ======================================================
+st.markdown("""
+<style>
+.sidebar-fixed {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 200px;
+    bottom: 0;
+    background: #f7f9ff;
+    padding: 20px 10px;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.08);
+    z-index: 9998;
+}
+.sidebar-fixed h3 {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+.sidebar-fixed .link {
+    display: block;
+    padding: 10px 14px;
+    margin: 8px 0;
+    background: white;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    color: #222;
+}
+.sidebar-fixed .link:hover {
+    background: #e6ecff;
+}
+</style>
+
+<div class="sidebar-fixed">
+    <h3>NAVIGATION</h3>
+    <a class="link" href="#dashboard">Dashboard</a>
+    <a class="link" href="#reports">Reports</a>
+    <a class="link" href="#settings">Settings</a>
+</div>
+""", unsafe_allow_html=True)
+
+# ======================================================
+# PRIMARY NAVIGATION (TOP TABS)
+# ======================================================
+main_tabs = st.tabs(["📊 Dashboard", "📁 Reports", "⚙️ Settings"])
+
+# ======================================================
+# DASHBOARD TAB
+# ======================================================
 with main_tabs[0]:
-    st.subheader("Dashboard Section")
+    st.markdown("<a id='dashboard'></a>", unsafe_allow_html=True)
+    st.subheader("📊 Dashboard")
 
-    sub_tabs = st.tabs(["Overview", "Stations"])
+    dash_tabs = st.tabs(["Overview", "Stations"])
 
-    with sub_tabs[0]:
+    with dash_tabs[0]:
         st.header("Overview")
-        st.write("Summary KPIs, throughput, OEE, etc.")
+        st.write("Real-time KPIs: throughput, OEE, downtime, cycle times…")
 
-    with sub_tabs[1]:
+    with dash_tabs[1]:
         st.header("Stations")
-        st.write("Station list, status, alarms, cycle times.")
+        st.write("List of stations, live alarms, PLC/IO health…")
 
-# ------------------------------------------------------
-# REPORTS PAGE
-# ------------------------------------------------------
+# ======================================================
+# REPORTS TAB
+# ======================================================
 with main_tabs[1]:
-    st.subheader("Reports Section")
+    st.markdown("<a id='reports'></a>", unsafe_allow_html=True)
+    st.subheader("📁 Reports")
 
-    sub_tabs = st.tabs(["Daily", "Monthly"])
+    report_tabs = st.tabs(["Daily", "Monthly"])
 
-    with sub_tabs[0]:
+    with report_tabs[0]:
         st.header("Daily Reports")
-        st.write("Daily production, shift summary.")
+        st.write("Shift data, daily performance, operator logs…")
 
-    with sub_tabs[1]:
+    with report_tabs[1]:
         st.header("Monthly Reports")
-        st.write("Monthly trends, paretos, scrap analysis.")
+        st.write("Monthly trends, scrap, Pareto charts, compliance…")
 
-# ------------------------------------------------------
-# SETTINGS PAGE
-# ------------------------------------------------------
+# ======================================================
+# SETTINGS TAB
+# ======================================================
 with main_tabs[2]:
-    st.subheader("Settings Section")
+    st.markdown("<a id='settings'></a>", unsafe_allow_html=True)
+    st.subheader("⚙️ Settings")
 
-    sub_tabs = st.tabs(["Users", "System Config"])
+    set_tabs = st.tabs(["Users", "System Config"])
 
-    with sub_tabs[0]:
+    with set_tabs[0]:
         st.header("User Management")
-        st.write("Create / edit users, roles, permissions.")
+        st.write("Roles, permissions, access control groups…")
 
-    with sub_tabs[1]:
+    with set_tabs[1]:
         st.header("System Configuration")
-        st.write("Integrations, PLC connections, system params.")
+        st.write("PLC connections, integrations, historian settings…")
 
-# ------------------------------------------------------
+# ======================================================
 # FOOTER
-# ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        .footer {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background: white;
-            padding: 10px;
-            text-align:center;
-            border-top:1px solid #ddd;
-            font-size:13px;
-            box-shadow:0 -2px 12px rgba(0,0,0,0.05);
-        }
-    </style>
-    <div class='footer'>© 2025 MES Hybrid Tabs — Streamlit UI</div>
-    """,
-    unsafe_allow_html=True,
-)
+# ======================================================
+st.markdown("""
+<style>
+.footer {
+    position: fixed;
+    left: 220px; right: 0;
+    bottom: 0;
+    padding: 10px;
+    background: white;
+    text-align: center;
+    font-size: 13px;
+    border-top: 1px solid #ddd;
+}
+</style>
+
+<div class="footer">
+    © 2025 MES Hybrid UI — Tabs + Sidebar Layout
+</div>
+""", unsafe_allow_html=True)
