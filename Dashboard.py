@@ -61,13 +61,14 @@ custom_header = """
 
     <script>
         function switchTab(index) {
-            const tabs = window.parent.document.querySelectorAll('.stTabs li');
+            const tabs = window.parent.document.querySelectorAll('div[data-testid="stTabs"] button');
             if (tabs && tabs[index]) {
                 tabs[index].click();
             }
         }
     </script>
 """
+
 st.markdown(custom_header, unsafe_allow_html=True)
 
 
