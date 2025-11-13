@@ -77,7 +77,7 @@ elif page == "reports":
     st.header("📁 Reports")
     st.write("Report listing...")
 
-elif page == "settings":
+elif:
     st.header("⚙️ Settings")
     st.write("System configuration...")
 
