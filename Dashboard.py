@@ -14,7 +14,7 @@ st.markdown(hide_default, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# FIXED CUSTOM HEADER (Top)
+# FIXED CUSTOM HEADER
 # -------------------------------------------------------
 custom_header = """
     <style>
@@ -34,7 +34,6 @@ custom_header = """
             align-items: center;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
         }
-
         .header-links a {
             color: white;
             margin-left: 25px;
@@ -42,12 +41,9 @@ custom_header = """
             font-size: 16px;
             font-weight: 500;
         }
-
         .header-links a:hover {
             text-decoration: underline;
         }
-
-        /* Push content below fixed header */
         .block-container {
             padding-top: 90px !important;
         }
@@ -64,11 +60,12 @@ custom_header = """
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
+
 # -------------------------------------------------------
-# URL MODE (Optional)
+# URL MODE FIX
 # -------------------------------------------------------
 params = st.experimental_get_query_params()
-page = params.get("page", [side_sel.lower()])[0]
+page = params.get("page", ["dashboard"])[0]     # FIXED
 
 
 # -------------------------------------------------------
@@ -90,7 +87,7 @@ elif page == "settings":
 
 
 # -------------------------------------------------------
-# CUSTOM FOOTER (Bottom)
+# CUSTOM FOOTER
 # -------------------------------------------------------
 custom_footer = """
     <style>
