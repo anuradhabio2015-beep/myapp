@@ -6,6 +6,100 @@ st.set_page_config(page_title="My App", page_icon=":sparkles:", layout="wide")
 # === Hide default Streamlit header/menu/footer ===
 HIDE_STEAMLIT_STYLE = """
 <style>
+/* Modern GlassMorphic Theme */
+body {
+  background: #f5f7fb;
+}
+
+.custom-header-modern {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.custom-header-modern .title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #222;
+  margin: 0;
+}
+
+.custom-header-modern .subtitle {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+}
+
+/* Beautiful Side Menu */
+.custom-side-menu {
+  position: fixed;
+  top: 160px;
+  left: 0;
+  width: 240px;
+  height: 75%;
+  padding: 25px 18px;
+  border-radius: 0 20px 20px 0;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(15px);
+  border-right: 1px solid rgba(200,200,200,0.5);
+  box-shadow: 4px 0 20px rgba(0,0,0,0.06);
+  transition: margin-left 0.35s ease;
+}
+
+.custom-side-menu a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  color: #222;
+  background: rgba(255,255,255,0.6);
+  margin-bottom: 10px;
+  transition: all 0.2s ease;
+}
+
+.custom-side-menu a:hover {
+  background: #ece9ff;
+  transform: translateX(6px);
+}
+
+/* Collapsed Mode */
+.custom-side-menu.collapsed {
+  margin-left: -220px;
+}
+
+/* Modern Toggle Button */
+.toggle-btn {
+  position: fixed;
+  top: 170px;
+  left: 10px;
+  font-size: 22px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 999;
+  transition: 0.2s;
+}
+.toggle-btn:hover {
+  transform: scale(1.08);
+}
+
+/* Smooth Content Shift */
+.block-container {
+  margin-left: 260px;
+  transition: margin-left 0.35s ease;
+}
+
 /* Hide the top header (Streamlit logo) */
 header {visibility: hidden;}
 /* Hide the hamburger menu and "Made with Streamlit" footer */
@@ -43,7 +137,7 @@ LOGO_PATH = "https://placehold.co/80x80/png?text=Logo"  # replace with your logo
 
 CUSTOM_HEADER_STYLE = """
 <style>
-.custom-header {
+.custom-header-modern {
   display: flex;
   align-items: center;
   gap: 16px;
