@@ -1,172 +1,202 @@
 import streamlit as st
 
-# ------------------------------------------------------
-# MASTER CONFIG
-# ------------------------------------------------------
-st.set_page_config(page_title="MES Hybrid Pro UI", page_icon="🧭", layout="wide")
+# -------------------------------------
+# PAGE CONFIG
+# -------------------------------------
+st.set_page_config(page_title="MES Hybrid SPA", layout="wide")
 
-# ------------------------------------------------------
-# REMOVE STREAMLIT DEFAULT CHROME
-# ------------------------------------------------------
+# -------------------------------------
+# HIDE STREAMLIT DEFAULT CHROME
+# -------------------------------------
 st.markdown("""
 <style>
-#MainMenu {visibility: hidden;}
-header {visibility: hidden;}
-footer {visibility: hidden;}
-[data-testid="stToolbar"] {display:none;}
+#MainMenu{visibility:hidden;}
+header{visibility:hidden;}
+footer{visibility:hidden;}
+[data-testid="stToolbar"]{display:none;}
 </style>
 """, unsafe_allow_html=True)
 
-# ======================================================
-# HEADER (Modern Glass/Hybrid)
-# ======================================================
+# -------------------------------------
+# SESSION STATE FOR SPA NAVIGATION
+# -------------------------------------
+if "page" not in st.session_state:
+    st.session_state.page = "dashboard"
+
+if "sub" not in st.session_state:
+    st.session_state.sub = "overview"
+
+def goto(page=None, sub=None):
+    if page:
+        st.session_state.page = page
+    if sub:
+        st.session_state.sub = sub
+
+# -------------------------------------
+# HEADER
+# -------------------------------------
 st.markdown("""
 <style>
-.top-header {
+.header {
     position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 80px;
-    padding: 14px 30px;
-    display: flex;
-    align-items: center;
-    background: white;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-    z-index: 9999;
+    top:0; left:0; right:0;
+    height: 72px;
+    background:white;
+    display:flex;
+    align-items:center;
+    padding:0 20px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.08);
+    z-index:9999;
 }
-.top-header img {
-    height: 50px;
-    width: 50px;
-    border-radius: 10px;
-    margin-right: 15px;
+.header-title {
+    font-size:24px;
+    font-weight:800;
+    margin-left:16px;
 }
-.top-title { font-size: 24px; font-weight: 800; color:#111; }
-.block-container { padding-top: 130px !important; margin-left: 220px !important; }
+.block-container { padding-top:120px !important; }
 </style>
 
-<div class="top-header">
-    <img src="https://placehold.co/60x60?text=LOGO"/>
-    <div class="top-title">MES Hybrid System (Tabs + Sidebar)</div>
+<div class="header">
+    <img src="https://placehold.co/58x58?text=Logo" style="border-radius:10px"/>
+    <div class="header-title">MES Hybrid UI — SPA Mode</div>
 </div>
 """, unsafe_allow_html=True)
 
-# ======================================================
-# SIDEBAR (Fixed vertical navigation)
-# ======================================================
+# -------------------------------------
+# TOP SUBMENU (acts like tabs)
+# -------------------------------------
+submenu_items = {
+    "dashboard": ["overview", "stations"],
+    "reports": ["daily", "monthly"],
+    "settings": ["users", "system"],
+}
+
 st.markdown("""
 <style>
-.sidebar-fixed {
+.submenu {
     position: fixed;
-    top: 80px;
-    left: 0;
-    width: 200px;
-    bottom: 0;
-    background: #f7f9ff;
-    padding: 20px 10px;
-    box-shadow: 3px 0 10px rgba(0,0,0,0.08);
-    z-index: 9998;
+    top: 72px;
+    left: 260px;
+    right: 0;
+    height:48px;
+    padding-left:16px;
+    display:flex; gap:16px;
+    align-items:center;
+    background:white;
+    border-bottom:1px solid #eee;
+    z-index:9998;
 }
-.sidebar-fixed h3 {
-    font-size: 18px;
-    font-weight: 800;
-    margin-bottom: 16px;
+.sub-btn {
+    padding:8px 16px;
+    border-radius:6px;
+    background:#f0f2ff;
+    font-weight:700;
+    cursor:pointer;
 }
-.sidebar-fixed .link {
-    display: block;
-    padding: 10px 14px;
-    margin: 8px 0;
-    background: white;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    color: #222;
-}
-.sidebar-fixed .link:hover {
-    background: #e6ecff;
+.sub-btn-active {
+    background:#2c6bed !important;
+    color:white !important;
 }
 </style>
 
-<div class="sidebar-fixed">
-    <h3>NAVIGATION</h3>
-    <a class="link" href="#dashboard">Dashboard</a>
-    <a class="link" href="#reports">Reports</a>
-    <a class="link" href="#settings">Settings</a>
-</div>
+<div class="submenu" id="submenu"></div>
 """, unsafe_allow_html=True)
 
-# ======================================================
-# PRIMARY NAVIGATION (TOP TABS)
-# ======================================================
-main_tabs = st.tabs(["📊 Dashboard", "📁 Reports", "⚙️ Settings"])
+sub_container = st.container()
 
-# ======================================================
-# DASHBOARD TAB
-# ======================================================
-with main_tabs[0]:
-    st.markdown("<a id='dashboard'></a>", unsafe_allow_html=True)
-    st.subheader("📊 Dashboard")
+with sub_container:
+    cols = st.columns(len(submenu_items[st.session_state.page]))
+    for i, sub in enumerate(submenu_items[st.session_state.page]):
+        if st.session_state.sub == sub:
+            cols[i].button(label=sub.upper(), on_click=goto, args=(None, sub), key=f"sub_{sub}", help="", use_container_width=True)
+        else:
+            cols[i].button(label=sub.capitalize(), on_click=goto, args=(None, sub), key=f"sub_inactive_{sub}", help="", use_container_width=True)
 
-    dash_tabs = st.tabs(["Overview", "Stations"])
+# -------------------------------------
+# SIDEBAR NAVIGATION (SPA)
+# -------------------------------------
+st.markdown("""
+<style>
+.sidebar {
+    position:fixed;
+    top:72px; bottom:0; left:0;
+    width:260px;
+    background:#f8faff;
+    padding:20px 16px;
+    overflow-y:auto;
+    z-index:9998;
+}
+.sidebar-item {
+    padding:12px 14px;
+    margin-bottom:8px;
+    border-radius:6px;
+    font-weight:700;
+    cursor:pointer;
+}
+.sidebar-item-active {
+    background:#2c6bed;
+    color:white;
+}
+</style>
+<div class="sidebar"></div>
+""", unsafe_allow_html=True)
 
-    with dash_tabs[0]:
-        st.header("Overview")
-        st.write("Real-time KPIs: throughput, OEE, downtime, cycle times…")
+side = st.container()
 
-    with dash_tabs[1]:
-        st.header("Stations")
-        st.write("List of stations, live alarms, PLC/IO health…")
+with side:
+    pages = ["dashboard", "reports", "settings"]
 
-# ======================================================
-# REPORTS TAB
-# ======================================================
-with main_tabs[1]:
-    st.markdown("<a id='reports'></a>", unsafe_allow_html=True)
-    st.subheader("📁 Reports")
+    for p in pages:
+        if p == st.session_state.page:
+            st.button(p.upper(), on_click=goto, args=(p, None), key=f"page_{p}", use_container_width=True)
+        else:
+            st.button(p.capitalize(), on_click=goto, args=(p, None), key=f"page_inactive_{p}", use_container_width=True)
 
-    report_tabs = st.tabs(["Daily", "Monthly"])
 
-    with report_tabs[0]:
+# -------------------------------------
+# MAIN CONTENT
+# -------------------------------------
+st.title(st.session_state.page.capitalize() + " — " + st.session_state.sub.capitalize())
+
+if st.session_state.page == "dashboard":
+    if st.session_state.sub == "overview":
+        st.header("Dashboard: Overview")
+        st.write("KPIs • OEE • Throughput • Line Status")
+    elif st.session_state.sub == "stations":
+        st.header("Dashboard: Stations")
+        st.write("Station KPIs • Cycles • Alarms")
+
+elif st.session_state.page == "reports":
+    if st.session_state.sub == "daily":
         st.header("Daily Reports")
-        st.write("Shift data, daily performance, operator logs…")
-
-    with report_tabs[1]:
+        st.write("Shift Summary • Production Count")
+    elif st.session_state.sub == "monthly":
         st.header("Monthly Reports")
-        st.write("Monthly trends, scrap, Pareto charts, compliance…")
+        st.write("Pareto • Scrap Analysis")
 
-# ======================================================
-# SETTINGS TAB
-# ======================================================
-with main_tabs[2]:
-    st.markdown("<a id='settings'></a>", unsafe_allow_html=True)
-    st.subheader("⚙️ Settings")
-
-    set_tabs = st.tabs(["Users", "System Config"])
-
-    with set_tabs[0]:
+elif st.session_state.page == "settings":
+    if st.session_state.sub == "users":
         st.header("User Management")
-        st.write("Roles, permissions, access control groups…")
-
-    with set_tabs[1]:
+        st.write("Create • Edit • Roles • Permissions")
+    elif st.session_state.sub == "system":
         st.header("System Configuration")
-        st.write("PLC connections, integrations, historian settings…")
+        st.write("PLC • OPC • MES Settings")
 
-# ======================================================
+# -------------------------------------
 # FOOTER
-# ======================================================
+# -------------------------------------
 st.markdown("""
 <style>
 .footer {
-    position: fixed;
-    left: 220px; right: 0;
-    bottom: 0;
-    padding: 10px;
-    background: white;
-    text-align: center;
-    font-size: 13px;
-    border-top: 1px solid #ddd;
+    position:fixed;
+    bottom:0; left:260px; right:0;
+    background:white;
+    border-top:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+    font-size:13px;
+    z-index:9998;
 }
 </style>
-
-<div class="footer">
-    © 2025 MES Hybrid UI — Tabs + Sidebar Layout
-</div>
+<div class="footer">© 2025 MES SPA Navigation UI</div>
 """, unsafe_allow_html=True)
