@@ -69,6 +69,58 @@ header_html = f"""
 
 st.markdown(header_html, unsafe_allow_html=True)
 
+# === Side Menu (Custom) ===
+SIDE_MENU_STYLE = """
+<style>
+.custom-side-menu {
+  position: fixed;
+  top: 90px;
+  left: 0;
+  width: 220px;
+  height: 100%;
+  background: #ffffff;
+  padding: 20px 15px;
+  box-shadow: 4px 0 15px rgba(0,0,0,0.08);
+  border-radius: 0 12px 12px 0;
+  z-index: 998;
+}
+.custom-side-menu a {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+.custom-side-menu a:hover {
+  background: #f2f2ff;
+}
+</style>
+"""
+st.markdown(SIDE_MENU_STYLE, unsafe_allow_html=True)
+
+side_menu_html = """
+<div class="custom-side-menu">
+  <a href="#">🏠 Dashboard</a>
+  <a href="#">📦 Orders</a>
+  <a href="#">🏭 Production</a>
+  <a href="#">🔧 Settings</a>
+  <a href="#">📊 Reports</a>
+</div>
+"""
+
+st.markdown(side_menu_html, unsafe_allow_html=True)
+
+# Shift main layout right to avoid overlap
+st.markdown("""
+<style>
+.block-container {
+  margin-left: 240px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # === Rest of app content ===
 st.write("Welcome — the default Streamlit header is hidden and a custom header is shown instead.")
 
