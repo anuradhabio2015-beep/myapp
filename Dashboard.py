@@ -77,10 +77,6 @@ elif page == "reports":
     st.header("📁 Reports")
     st.write("Report listing...")
 
-elif:
-    st.header("⚙️ Settings")
-    st.write("System configuration...")
-
 
 # -------------------------------------------------------
 # CUSTOM FOOTER (Bottom)
