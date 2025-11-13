@@ -64,15 +64,6 @@ custom_header = """
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
-
-# -------------------------------------------------------
-# SIDEBAR
-# -------------------------------------------------------
-with st.sidebar:
-    st.title("📌 Navigation")
-    side_sel = st.radio("Go to:", ["Dashboard", "Reports", "Settings"])
-
-
 # -------------------------------------------------------
 # URL MODE (Optional)
 # -------------------------------------------------------
@@ -99,7 +90,7 @@ elif page == "settings":
 
 
 # -------------------------------------------------------
-# FIXED CUSTOM FOOTER (Bottom)
+# CUSTOM FOOTER (Bottom)
 # -------------------------------------------------------
 custom_footer = """
     <style>
