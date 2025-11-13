@@ -3,75 +3,111 @@ import streamlit as st
 # -------------------------------------------------------
 # REMOVE STREAMLIT DEFAULT HEADER/FOOTER
 # -------------------------------------------------------
-hide_default = """
-    <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_default, unsafe_allow_html=True)
+st.markdown("""
+<style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# READ ACTIVE PAGE FROM st.query_params  (NEW API)
+# READ PAGE + SUBTAB FROM QUERY PARAMS
 # -------------------------------------------------------
 params = st.query_params
+
 active_page = params.get("page", "dashboard")
+active_subtab = params.get("sub", "daily")      # default sub-tab
 
 
 # -------------------------------------------------------
-# CUSTOM HEADER WITH PURE LINK NAVIGATION
+# FIXED LEFT SIDEBAR MENU
 # -------------------------------------------------------
-custom_header = f"""
-    <style>
-        .custom-header {{
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2c6bed;
-            color: white;
-            padding: 14px 22px;
-            font-size: 20px;
-            font-weight: 700;
-            z-index: 9999;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
-        }}
-        .header-links a {{
-            color: white;
-            margin-left: 25px;
-            font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            opacity: 0.6;
-        }}
-        .header-links a.active {{
-            opacity: 1;
-            text-decoration: underline;
-        }}
-        .block-container {{
-            padding-top: 90px !important;
-        }}
-    </style>
+st.markdown("""
+<style>
+.sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 230px;
+    height: 100%;
+    background-color: #1d4ed8;
+    padding-top: 90px;
+    z-index: 9999;
+}
+.sidebar-item {
+    padding: 14px 25px;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    opacity: 0.75;
+}
+.sidebar-item.active {
+    background-color: #2563eb;
+    opacity: 1;
+}
+.sidebar-item:hover {
+    background-color: #3b82f6;
+}
+.subitem {
+    padding: 8px 45px;
+    color: white;
+    font-size: 15px;
+    text-decoration: none;
+    display: block;
+    opacity: 0.7;
+}
+.subitem.active {
+    font-weight: bold;
+    opacity: 1;
+    text-decoration: underline;
+}
+.block-container {
+    margin-left: 260px !important;
+    padding-top: 30px !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    <div class="custom-header">
-        <div>MES Application</div>
-        <div class="header-links">
-            <a href="?page=dashboard" class="{ 'active' if active_page=='dashboard' else ''}">Dashboard</a>
-            <a href="?page=reports" class="{ 'active' if active_page=='reports' else ''}">Reports</a>
-            <a href="?page=settings" class="{ 'active' if active_page=='settings' else ''}">Settings</a>
-        </div>
-    </div>
+
+# -------------------------------------------------------
+# BUILD SIDEBAR HTML
+# -------------------------------------------------------
+sidebar_html = f"""
+<div class="sidebar-container">
+
+    <a href="?page=dashboard" class="sidebar-item {'active' if active_page=='dashboard' else ''}">
+        📊 Dashboard
+    </a>
+
+    <a href="?page=reports" class="sidebar-item {'active' if active_page=='reports' else ''}">
+        📁 Reports
+    </a>
 """
-st.markdown(custom_header, unsafe_allow_html=True)
+
+# Add subtabs only when Reports is active
+if active_page == "reports":
+    sidebar_html += f"""
+        <a href="?page=reports&sub=daily" class="subitem {'active' if active_subtab=='daily' else ''}">Daily</a>
+        <a href="?page=reports&sub=weekly" class="subitem {'active' if active_subtab=='weekly' else ''}">Weekly</a>
+        <a href="?page=reports&sub=monthly" class="subitem {'active' if active_subtab=='monthly' else ''}">Monthly</a>
+    """
+
+sidebar_html += f"""
+    <a href="?page=settings" class="sidebar-item {'active' if active_page=='settings' else ''}">
+        ⚙️ Settings
+    </a>
+</div>
+"""
+
+st.markdown(sidebar_html, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# PAGE CONTENT
+# PAGE CONTENT AREA
 # -------------------------------------------------------
 if active_page == "dashboard":
     st.header("📊 Dashboard")
@@ -81,34 +117,43 @@ if active_page == "dashboard":
 
 elif active_page == "reports":
     st.header("📁 Reports")
-    st.write("Report listing…")
+
+    if active_subtab == "daily":
+        st.subheader("📅 Daily Reports")
+        st.write("Daily report KPIs…")
+
+    elif active_subtab == "weekly":
+        st.subheader("📆 Weekly Reports")
+        st.write("Weekly trends…")
+
+    elif active_subtab == "monthly":
+        st.subheader("📊 Monthly Reports")
+        st.write("Monthly summary…")
 
 elif active_page == "settings":
     st.header("⚙️ Settings")
-    st.write("System configuration…")
+    st.write("System settings & configuration…")
 
 
 # -------------------------------------------------------
 # CUSTOM FOOTER
 # -------------------------------------------------------
-custom_footer = """
-    <style>
-        .custom-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2c6bed;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
-            z-index: 9999;
-        }
-    </style>
+st.markdown("""
+<style>
+.custom-footer {
+    position: fixed;
+    bottom: 0;
+    left: 260px;
+    width: calc(100% - 260px);
+    background-color: #1d4ed8;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
+</style>
 
-    <div class="custom-footer">
-        © 2025 MES System | Powered by Python + Streamlit
-    </div>
-"""
-st.markdown(custom_footer, unsafe_allow_html=True)
+<div class="custom-footer">
+© 2025 MES System | Powered by Python + Streamlit
+</div>
+""", unsafe_allow_html=True)
