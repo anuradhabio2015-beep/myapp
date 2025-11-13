@@ -65,13 +65,6 @@ custom_header = """
 st.markdown(custom_header, unsafe_allow_html=True)
 
 # -------------------------------------------------------
-# URL MODE (Optional)
-# -------------------------------------------------------
-params = st.experimental_get_query_params()
-page = params.get("page", [side_sel.lower()])[0]
-
-
-# -------------------------------------------------------
 # MAIN CONTENT
 # -------------------------------------------------------
 if page == "dashboard":
