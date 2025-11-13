@@ -226,4 +226,5 @@ st.markdown(
             z-index:999;
         }
     </style>
-    <div class='custom-footer'>© 2025 MES System — Powered by Streamlit</div>
+    <div class='custom-footer'>© 2025 MES System — Powered by Streamlit</div>"
+)
