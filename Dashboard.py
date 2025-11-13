@@ -1,93 +1,123 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 
-# -------------------------------------------------------
+# -------------------------------------------------------------
 # REMOVE DEFAULT STREAMLIT HEADER & FOOTER
-# -------------------------------------------------------
-hide_default = """
-<style>
-header {visibility: hidden;}
-footer {visibility: hidden;}
-#MainMenu {visibility: hidden;}
-</style>
+# -------------------------------------------------------------
+hide_streamlit_style = """
+    <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+    </style>
 """
-st.markdown(hide_default, unsafe_allow_html=True)
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# -------------------------------------------------------
-# CUSTOM HEADER (TOP BAR)
-# -------------------------------------------------------
+# -------------------------------------------------------------
+# CUSTOM HEADER WITH MENU
+# -------------------------------------------------------------
 custom_header = """
-<style>
-.custom-header {
-    background-color: #1a73e8;
-    padding: 12px 25px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    color: white;
-    font-size: 22px;
-    font-weight: 700;
-}
-</style>
+    <style>
+        .custom-header {
+            background-color: #2c6bed;
+            padding: 15px 20px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-header-title {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .header-menu a {
+            margin-left: 22px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        .header-menu a:hover {
+            text-decoration: underline;
+        }
+    </style>
 
-<div class="custom-header">
-🚀 MES Application – Smart Factory Dashboard
-</div>
+    <div class="custom-header">
+        <div class="custom-header-title">MES Application</div>
+        <div class="header-menu">
+            <a href="?page=dashboard">Dashboard</a>
+            <a href="?page=reports">Reports</a>
+            <a href="?page=settings">Settings</a>
+        </div>
+    </div>
 """
+
 st.markdown(custom_header, unsafe_allow_html=True)
 
-
-# -------------------------------------------------------
-# SIDE MENU
-# -------------------------------------------------------
+# -------------------------------------------------------------
+# SIDEBAR MENU
+# -------------------------------------------------------------
 with st.sidebar:
-    st.image("https://static.streamlit.io/examples/dice.jpg", width=140)
-    st.markdown("### Navigation")
-
-    selected = option_menu(
-        menu_title="",  
-        options=["Dashboard", "Orders", "Production", "Quality", "Settings"],
-        icons=["bar-chart", "list-task", "cpu", "check2-square", "gear"],
-        menu_icon="cast",
-        default_index=0,
+    st.title("📌 Menu")
+    side_selection = st.radio(
+        "Navigate",
+        ["Dashboard", "Reports", "Settings", "Help"]
     )
 
-# -------------------------------------------------------
-# BODY CONTENT
-# -------------------------------------------------------
-st.write(f"### You selected: **{selected}**")
+# -------------------------------------------------------------
+# URL PARAMETER ROUTING
+# -------------------------------------------------------------
+query_params = st.experimental_get_query_params()
+page = query_params.get("page", [side_selection.lower()])[0]
 
-if selected == "Dashboard":
-    st.info("Dashboard KPIs & charts here…")
-elif selected == "Orders":
-    st.success("Order Management UI…")
-elif selected == "Production":
-    st.warning("Production Status UI…")
-elif selected == "Quality":
-    st.error("Quality Dashboard UI…")
-elif selected == "Settings":
-    st.write("Settings page…")
+# -------------------------------------------------------------
+# PAGE CONTENT ROUTING
+# -------------------------------------------------------------
+if page == "dashboard":
+    st.header("📊 Dashboard")
+    
+    tab1, tab2 = st.tabs(["Production", "Quality"])
 
+    with tab1:
+        st.write("Production KPIs Here...")
 
-# -------------------------------------------------------
-# CUSTOM FOOTER (FIXED BOTTOM)
-# -------------------------------------------------------
+    with tab2:
+        st.write("Quality KPIs Here...")
+
+elif page == "reports":
+    st.header("📁 Reports")
+    st.write("Generate or download reports...")
+
+elif page == "settings":
+    st.header("⚙️ Settings")
+    st.write("User / System configuration...")
+
+elif page == "help":
+    st.header("❓ Help")
+    st.write("Documentation / Support info...")
+
+# -------------------------------------------------------------
+# CUSTOM FOOTER (ALWAYS VISIBLE)
+# -------------------------------------------------------------
 custom_footer = """
-<style>
-.custom-footer {
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    background-color: #1a73e8;
-    color: white;
-    text-align: center;
-    padding: 8px 0;
-    font-size: 14px;
-}
-</style>
+    <style>
+        .custom-footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background-color: #2c6bed;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+    </style>
 
-<div class="custom-footer">
-© 2025 MES System | Designed & Developed by Rahul
-</div>
+    <div class="custom-footer">
+        © 2025 MES System | Powered by Python + Streamlit
+    </div>
 """
+
 st.markdown(custom_footer, unsafe_allow_html=True)
