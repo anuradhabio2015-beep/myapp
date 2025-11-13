@@ -29,27 +29,20 @@ custom_header = """
             font-size: 14px;
         }
     </style>
-    <div class="custom-header">
-        <div class="custom-header-title">MES Application</div>
-        <div class="header-menu">
-            <a href="?page=dashboard">Dashboard</a>
-            <a href="?page=reports">Reports</a>
-            <a href="?page=settings">Settings</a>
-        </div>
+    # <div class="custom-header">
+    #     <div class="custom-header-title">MES Application</div>
+    #     <div class="header-menu">
+    #         <a href="?page=dashboard">Dashboard</a>
+    #         <a href="?page=reports">Reports</a>
+    #         <a href="?page=settings">Settings</a>
+    #     </div>
+    # </div>
+    <div class="custom-footer">
+        © 2025 MES System | Powered by Python + Streamlit
     </div>
 """
 
 st.markdown(custom_header, unsafe_allow_html=True)
-
-# -------------------------------------------------------------
-# SIDEBAR MENU
-# -------------------------------------------------------------
-with st.sidebar:
-    st.title("📌 Menu")
-    side_selection = st.radio(
-        "Navigate",
-        ["Dashboard", "Reports", "Settings", "Help"]
-    )
 
 # -------------------------------------------------------------
 # URL PARAMETER ROUTING
