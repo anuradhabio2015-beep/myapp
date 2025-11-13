@@ -12,131 +12,148 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
+
 # -------------------------------------------------------
 # SESSION STATE FOR ACTIVE PAGE
 # -------------------------------------------------------
 if "active_page" not in st.session_state:
     st.session_state.active_page = "dashboard"
 
-# -------------------------------------------------------
-# CLICK HANDLERS — THESE SWITCH TABS WITHOUT RELOAD
-# -------------------------------------------------------
-def go_dashboard():
-    st.session_state.active_page = "dashboard"
-
-def go_reports():
-    st.session_state.active_page = "reports"
-
-def go_settings():
-    st.session_state.active_page = "settings"
 
 # -------------------------------------------------------
-# CUSTOM HEADER (BUTTONS — SAME PAGE)
+# CUSTOM HEADER (WITH BUTTONS INSIDE HEADER)
 # -------------------------------------------------------
-custom_header = """
-    <style>
-        .custom-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2c6bed;
-            color: white;
-            padding: 14px 22px;
-            font-size: 20px;
-            font-weight: 700;
-            z-index: 9999;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
-        }
-        .header-links button {
-            background: none;
-            border: none;
-            color: white;
-            margin-left: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            opacity: 0.7;
-        }
-        .header-links button.active {
-            opacity: 1;
-            text-decoration: underline;
-        }
-        .block-container {
-            padding-top: 90px !important;
-        }
-    </style>
+header_html = """
+<style>
+.custom-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background-color: #2c6bed;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    font-size: 22px;
+    font-weight: 700;
+    z-index: 9999;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.25);
+}
+.nav-buttons {
+    display: flex;
+    gap: 30px;
+}
+.nav-button {
+    color: white;
+    font-size: 16px;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    opacity: 0.7;
+    transition: 0.2s;
+}
+.nav-button:hover {
+    opacity: 1;
+    background-color: rgba(255,255,255,0.15);
+}
+.nav-button.active {
+    opacity: 1;
+    text-decoration: underline;
+}
+.block-container {
+    padding-top: 90px !important;
+}
+</style>
+<div class="custom-header">
+    <div>MES Application</div>
+    <div class="nav-buttons">
 """
-st.markdown(custom_header, unsafe_allow_html=True)
 
-# Header layout
-col1, col2 = st.columns([1, 1])
-with col1:
-    st.markdown(
-        "<div class='custom-header'>MES Application</div>",
-        unsafe_allow_html=True
-    )
+# Add buttons dynamically
+header_html += f"""
+        <div class="nav-button {'active' if st.session_state.active_page=='dashboard' else ''}"
+             onclick="window.parent.postMessage({{'page':'dashboard'}}, '*')">
+             Dashboard
+        </div>
 
-with col2:
-    st.write("")  # spacing
-    st.write("")  # spacing
-    st.write("")
+        <div class="nav-button {'active' if st.session_state.active_page=='reports' else ''}"
+             onclick="window.parent.postMessage({{'page':'reports'}}, '*')">
+             Reports
+        </div>
 
-# Render header menu using columns (stays on same page)
-header_col1, header_col2, header_col3 = st.columns(3)
+        <div class="nav-button {'active' if st.session_state.active_page=='settings' else ''}"
+             onclick="window.parent.postMessage({{'page':'settings'}}, '*')">
+             Settings
+        </div>
+"""
 
-with header_col1:
-    if st.button("Dashboard", key="dash_btn"):
-        go_dashboard()
+header_html += """
+    </div>
+</div>
+<script>
+window.addEventListener('message', (event) => {
+    if (event.data.page) {
+        window.parent.streamlitRerun({value: event.data.page});
+    }
+});
+</script>
+"""
 
-with header_col2:
-    if st.button("Reports", key="rep_btn"):
-        go_reports()
+st.markdown(header_html, unsafe_allow_html=True)
 
-with header_col3:
-    if st.button("Settings", key="set_btn"):
-        go_settings()
 
 # -------------------------------------------------------
-# PAGE CONTENT BASED ON session_state
+# UPDATE ACTIVE PAGE ON CLICK (NO PAGE RELOAD)
+# -------------------------------------------------------
+event = st.session_state.get("_streamlitRerun")
+if event:
+    st.session_state.active_page = event
+
+
+# -------------------------------------------------------
+# PAGE CONTENT
 # -------------------------------------------------------
 if st.session_state.active_page == "dashboard":
     st.header("📊 Dashboard")
-    t1, t2 = st.tabs(["Production", "Quality"])
-    t1.write("Production KPIs…")
-    t2.write("Quality KPIs…")
+    tab1, tab2 = st.tabs(["Production", "Quality"])
+    tab1.write("Production KPIs…")
+    tab2.write("Quality KPIs…")
 
 elif st.session_state.active_page == "reports":
     st.header("📁 Reports")
-    st.write("Report listing…")
+    st.write("Report Listing…")
 
 elif st.session_state.active_page == "settings":
     st.header("⚙️ Settings")
-    st.write("Settings configuration…")
+    st.write("Configuration…")
+
 
 # -------------------------------------------------------
 # FOOTER
 # -------------------------------------------------------
 custom_footer = """
-    <style>
-        .custom-footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: #2c6bed;
-            color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
-            z-index: 9999;
-        }
-    </style>
+<style>
+.custom-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #2c6bed;
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    z-index: 9999;
+}
+</style>
 
-    <div class="custom-footer">
-        © 2025 MES System | Powered by Python + Streamlit
-    </div>
+<div class="custom-footer">
+    © 2025 MES System | Powered by Python + Streamlit
+</div>
 """
+
 st.markdown(custom_footer, unsafe_allow_html=True)
