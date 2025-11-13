@@ -12,20 +12,18 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
+# -------------------------------------------------------
+# INIT ACTIVE TAB IN SESSION
+# -------------------------------------------------------
+if "active_tab" not in st.session_state:
+    st.session_state.active_tab = "Dashboard"
 
 # -------------------------------------------------------
-# READ ACTIVE PAGE USING st.query_params (LATEST API)
-# -------------------------------------------------------
-params = st.query_params
-active_page = params.get("page", "dashboard")
-
-
-# -------------------------------------------------------
-# FIXED TOP HEADER (BLUE BAR)
+# TOP FIXED HEADER
 # -------------------------------------------------------
 header_html = """
     <style>
-        .top-header {
+        .header {
             position: fixed;
             top: 0;
             left: 0;
@@ -38,110 +36,115 @@ header_html = """
             align-items: center;
             font-size: 22px;
             font-weight: 700;
-            z-index: 1000;
+            z-index: 999;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
         }
-        .main-content {
+        .content {
             padding-top: 80px;
             padding-left: 200px;
         }
     </style>
-
-    <div class="top-header">MES Application</div>
+    <div class="header">MES Application</div>
 """
 st.markdown(header_html, unsafe_allow_html=True)
 
-
 # -------------------------------------------------------
-# FIXED LEFT SIDEBAR MENU (CSS + HTML)
+# FIXED SIDEBAR MENU USING SESSION STATE
 # -------------------------------------------------------
-sidebar_html = f"""
+sidebar_html = """
     <style>
-        .sidebar {{
+        .side-menu {
             position: fixed;
             top: 60px;
             left: 0;
             width: 180px;
             height: 100%;
-            background-color: #f5f7fa;
-            padding-top: 30px;
+            background-color: #f4f7fb;
+            padding-top: 20px;
             border-right: 1px solid #ddd;
-            z-index: 999;
-        }}
-
-        .menu-item {{
-            padding: 12px 20px;
+        }
+        .menu-item {
+            padding: 12px 18px;
+            margin: 4px 10px;
             font-size: 16px;
             font-weight: 600;
             color: #333;
-            text-decoration: none;
-            display: block;
             border-radius: 6px;
-            margin: 6px 10px;
-        }}
-
-        .menu-item:hover {{
-            background-color: #e6e9ef;
-        }}
-
-        .menu-active {{
-            background-color: #2c6bed !important;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background-color: #e5e9f1;
+        }
+        .menu-active {
+            background-color: #2c6bed;
             color: white !important;
-        }}
+        }
     </style>
-
-    <div class="sidebar">
-        <a href="?page=dashboard" class="menu-item {'menu-active' if active_page=='dashboard' else ''}">Dashboard</a>
-        <a href="?page=reports" class="menu-item {'menu-active' if active_page=='reports' else ''}">Reports</a>
-        <a href="?page=settings" class="menu-item {'menu-active' if active_page=='settings' else ''}">Settings</a>
-    </div>
 """
 st.markdown(sidebar_html, unsafe_allow_html=True)
 
+# SIDEBAR MENU ITEMS
+menu_container = st.container()
+
+with menu_container:
+    st.markdown(
+        f"""
+        <div class="side-menu">
+            <div class="menu-item {'menu-active' if st.session_state.active_tab=='Dashboard' else ''}"
+                 onclick="window.location.href='?clicked=Dashboard'">
+                Dashboard
+            </div>
+
+            <div class="menu-item {'menu-active' if st.session_state.active_tab=='Reports' else ''}"
+                 onclick="window.location.href='?clicked=Reports'">
+                Reports
+            </div>
+
+            <div class="menu-item {'menu-active' if st.session_state.active_tab=='Settings' else ''}"
+                 onclick="window.location.href='?clicked=Settings'">
+                Settings
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # -------------------------------------------------------
-# MAIN CONTENT AREA (SHIFTED RIGHT BELOW HEADER)
+# HANDLE MENU CLICK
 # -------------------------------------------------------
-st.markdown("<div class='main-content'>", unsafe_allow_html=True)
+params = st.query_params
+if "clicked" in params:
+    st.session_state.active_tab = params["clicked"]
+    # Clear parameters so URL stays clean
+    st.query_params.clear()
 
-if active_page == "dashboard":
-    st.header("📊 Dashboard")
-    t1, t2 = st.tabs(["Production", "Quality"])
-    t1.write("Production KPIs…")
-    t2.write("Quality KPIs…")
+# -------------------------------------------------------
+# MAIN CONTENT CONTROLLED BY ACTIVE TAB
+# -------------------------------------------------------
+st.markdown("<div class='content'>", unsafe_allow_html=True)
 
-elif active_page == "reports":
-    st.header("📁 Reports")
-    st.write("Report listing…")
+tab_names = ["Dashboard", "Reports", "Settings"]
 
-elif active_page == "settings":
-    st.header("⚙️ Settings")
-    st.write("System configuration…")
+# Select correct tab index
+tab_index = tab_names.index(st.session_state.active_tab)
+
+tabs = st.tabs(tab_names)
+
+with tabs[0]:
+    if st.session_state.active_tab == "Dashboard":
+        st.header("📊 Dashboard")
+        a, b = st.tabs(["Production", "Quality"])
+        a.write("Production KPIs...")
+        b.write("Quality KPIs...")
+
+with tabs[1]:
+    if st.session_state.active_tab == "Reports":
+        st.header("📁 Reports")
+        st.write("Report listing...")
+
+with tabs[2]:
+    if st.session_state.active_tab == "Settings":
+        st.header("⚙️ Settings")
+        st.write("System configuration...")
 
 st.markdown("</div>", unsafe_allow_html=True)
-
-
-# -------------------------------------------------------
-# FOOTER
-# -------------------------------------------------------
-footer_html = """
-    <style>
-        .custom-footer {
-            position: fixed;
-            bottom: 0;
-            left: 200px;
-            width: calc(100% - 200px);
-            background-color: #2c6bed;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            font-size: 14px;
-            z-index: 1000;
-        }
-    </style>
-
-    <div class="custom-footer">
-        © 2025 MES System | Powered by Python + Streamlit
-    </div>
-"""
-st.markdown(footer_html, unsafe_allow_html=True)
