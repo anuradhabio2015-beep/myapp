@@ -74,6 +74,7 @@ SIDE_MENU_STYLE = """
 <style>
 .custom-side-menu {
   position: fixed;
+  top: 150px;
   top: 90px;
   left: 0;
   width: 220px;
@@ -116,7 +117,7 @@ st.markdown(side_menu_html, unsafe_allow_html=True)
 st.markdown("""
 <style>
 .block-container {
-  margin-left: 240px;
+  margin-left: 260px;
 }
 </style>
 """, unsafe_allow_html=True)
