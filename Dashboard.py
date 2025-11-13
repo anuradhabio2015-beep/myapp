@@ -20,7 +20,7 @@ page = params.get("page", "dashboard")
 sub  = params.get("sub", "")
 
 # -------------------------------------------------------
-# TOP HEADER + TOP SUBMENU
+# TOP HEADER + TOP SUBMENU (use token placeholders)
 # -------------------------------------------------------
 top_header = """
     <style>
@@ -81,31 +81,29 @@ top_header = """
     </div>
 
     <div class="top-submenu">
-        <a href="?page=dashboard&sub=overview" class="{dashboard_overview}">Overview</a>
-        <a href="?page=dashboard&sub=stations" class="{dashboard_stations}">Stations</a>
+        <a href="?page=dashboard&sub=overview" class="%%DASH_OVERVIEW%%">Overview</a>
+        <a href="?page=dashboard&sub=stations" class="%%DASH_STATIONS%%">Stations</a>
 
-        <a href="?page=reports&sub=daily" class="{reports_daily}">Daily</a>
-        <a href="?page=reports&sub=monthly" class="{reports_monthly}">Monthly</a>
+        <a href="?page=reports&sub=daily" class="%%REPORTS_DAILY%%">Daily</a>
+        <a href="?page=reports&sub=monthly" class="%%REPORTS_MONTHLY%%">Monthly</a>
 
-        <a href="?page=settings&sub=users" class="{settings_users}">Users</a>
-        <a href="?page=settings&sub=system" class="{settings_system}">System</a>
+        <a href="?page=settings&sub=users" class="%%SETTINGS_USERS%%">Users</a>
+        <a href="?page=settings&sub=system" class="%%SETTINGS_SYSTEM%%">System</a>
     </div>
 """
 
-# ACTIVE STATES FOR TOP SUBMENU
-top_header = top_header.format(
-    dashboard_overview="active" if page=="dashboard" and sub in ["overview", ""] else "",
-    dashboard_stations="active" if page=="dashboard" and sub=="stations" else "",
-    reports_daily="active" if page=="reports" and sub=="daily" else "",
-    reports_monthly="active" if page=="reports" and sub=="monthly" else "",
-    settings_users="active" if page=="settings" and sub=="users" else "",
-    settings_system="active" if page=="settings" and sub=="system" else "",
-)
+# compute token values for top submenu
+top_header = top_header.replace("%%DASH_OVERVIEW%%", "active" if page=="dashboard" and sub in ["overview", ""] else "")
+top_header = top_header.replace("%%DASH_STATIONS%%", "active" if page=="dashboard" and sub=="stations" else "")
+top_header = top_header.replace("%%REPORTS_DAILY%%", "active" if page=="reports" and sub=="daily" else "")
+top_header = top_header.replace("%%REPORTS_MONTHLY%%", "active" if page=="reports" and sub=="monthly" else "")
+top_header = top_header.replace("%%SETTINGS_USERS%%", "active" if page=="settings" and sub=="users" else "")
+top_header = top_header.replace("%%SETTINGS_SYSTEM%%", "active" if page=="settings" and sub=="system" else "")
 
 st.markdown(top_header, unsafe_allow_html=True)
 
 # -------------------------------------------------------
-# LEFT SIDEBAR (SAFE—NO F-STRING)
+# LEFT SIDEBAR (use token placeholders again)
 # -------------------------------------------------------
 left_menu = """
     <style>
@@ -119,6 +117,7 @@ left_menu = """
             padding-top: 12px;
             box-shadow: 2px 0 6px rgba(0,0,0,0.1);
             z-index: 9998;
+            overflow: auto;
         }
 
         .brand {
@@ -173,69 +172,85 @@ left_menu = """
     <div class="left-menu">
         <div class="brand">MES Application</div>
 
-        <details open>
-            <summary class="active-main">📊 Dashboard</summary>
-            <a href="?page=dashboard&sub=overview" class="sub-item {dash_ov}">Overview</a>
-            <a href="?page=dashboard&sub=stations" class="sub-item {dash_st}">Stations</a>
+        <details %%DASH_OPEN%%>
+            <summary class="%%DASH_MAIN_ACTIVE%%">📊 Dashboard</summary>
+            <a href="?page=dashboard&sub=overview" class="sub-item %%DASH_OV%%">Overview</a>
+            <a href="?page=dashboard&sub=stations" class="sub-item %%DASH_ST%%">Stations</a>
         </details>
 
-        <details>
-            <summary class="{reports_active}">📁 Reports</summary>
-            <a href="?page=reports&sub=daily" class="sub-item {rep_d}">Daily</a>
-            <a href="?page=reports&sub=monthly" class="sub-item {rep_m}">Monthly</a>
+        <details %%REP_OPEN%%>
+            <summary class="%%REP_MAIN_ACTIVE%%">📁 Reports</summary>
+            <a href="?page=reports&sub=daily" class="sub-item %%REP_D%%">Daily</a>
+            <a href="?page=reports&sub=monthly" class="sub-item %%REP_M%%">Monthly</a>
         </details>
 
-        <details>
-            <summary class="{settings_active}">⚙️ Settings</summary>
-            <a href="?page=settings&sub=users" class="sub-item {set_u}">Users</a>
-            <a href="?page=settings&sub=system" class="sub-item {set_s}">System</a>
+        <details %%SET_OPEN%%>
+            <summary class="%%SET_MAIN_ACTIVE%%">⚙️ Settings</summary>
+            <a href="?page=settings&sub=users" class="sub-item %%SET_U%%">Users</a>
+            <a href="?page=settings&sub=system" class="sub-item %%SET_S%%">System</a>
         </details>
     </div>
 """
 
-# APPLY ACTIVE CLASSES
-left_menu = left_menu.format(
-    dash_ov="sub-active" if sub in ["overview",""] and page=="dashboard" else "",
-    dash_st="sub-active" if sub=="stations" and page=="dashboard" else "",
+# compute left menu tokens
+# open the group if it's the current page, otherwise closed
+left_menu = left_menu.replace("%%DASH_OPEN%%", "open" if page=="dashboard" else "")
+left_menu = left_menu.replace("%%REP_OPEN%%", "open" if page=="reports" else "")
+left_menu = left_menu.replace("%%SET_OPEN%%", "open" if page=="settings" else "")
 
-    reports_active="active-main" if page=="reports" else "",
-    rep_d="sub-active" if sub=="daily" and page=="reports" else "",
-    rep_m="sub-active" if sub=="monthly" and page=="reports" else "",
+left_menu = left_menu.replace("%%DASH_MAIN_ACTIVE%%", "active-main" if page=="dashboard" else "")
+left_menu = left_menu.replace("%%REP_MAIN_ACTIVE%%", "active-main" if page=="reports" else "")
+left_menu = left_menu.replace("%%SET_MAIN_ACTIVE%%", "active-main" if page=="settings" else "")
 
-    settings_active="active-main" if page=="settings" else "",
-    set_u="sub-active" if sub=="users" and page=="settings" else "",
-    set_s="sub-active" if sub=="system" and page=="settings" else "",
-)
+left_menu = left_menu.replace("%%DASH_OV%%", "sub-active" if page=="dashboard" and sub in ["overview", ""] else "")
+left_menu = left_menu.replace("%%DASH_ST%%", "sub-active" if page=="dashboard" and sub=="stations" else "")
+
+left_menu = left_menu.replace("%%REP_D%%", "sub-active" if page=="reports" and sub=="daily" else "")
+left_menu = left_menu.replace("%%REP_M%%", "sub-active" if page=="reports" and sub=="monthly" else "")
+
+left_menu = left_menu.replace("%%SET_U%%", "sub-active" if page=="settings" and sub=="users" else "")
+left_menu = left_menu.replace("%%SET_S%%", "sub-active" if page=="settings" and sub=="system" else "")
 
 st.markdown(left_menu, unsafe_allow_html=True)
 
 # -------------------------------------------------------
 # MAIN CONTENT
 # -------------------------------------------------------
-st.title(f"{page.capitalize()} - {sub.capitalize() if sub else ''}")
+# Title shown on the content area
+display_title = f"{page.capitalize()}" + (f" — {sub.capitalize()}" if sub else "")
+st.title(display_title)
 
 if page == "dashboard":
     if sub in ["overview", ""]:
         st.subheader("Overview")
-        st.write("Dashboard Overview Content…")
+        st.write("Summary KPIs, throughput, OEE, etc.")
     elif sub == "stations":
         st.subheader("Stations")
-        st.write("Station details, status, KPIs…")
+        st.write("Station list, status, alarms, cycle times.")
 
 elif page == "reports":
+    st.subheader("Reports")
     if sub == "daily":
-        st.subheader("Daily Reports")
+        st.write("Daily production, shift summary.")
     elif sub == "monthly":
-        st.subheader("Monthly Reports")
+        st.write("Monthly trends, paretos, scrap analysis.")
+    else:
+        st.write("Select a report from the submenu.")
 
 elif page == "settings":
+    st.subheader("Settings")
     if sub == "users":
-        st.subheader("User Management")
+        st.write("Create / edit users, roles, permissions.")
     elif sub == "system":
-        st.subheader("System Settings")
+        st.write("Integrations, PLC connections, system params.")
+    else:
+        st.write("Select a settings option from the submenu.")
+
+else:
+    st.write("Page not found — use the left menu.")
 
 # -------------------------------------------------------
-# FOOTER
+# FOOTER (aligned with content area)
 # -------------------------------------------------------
 st.markdown(
     """
@@ -250,9 +265,10 @@ st.markdown(
             padding: 8px;
             border-top: 1px solid #d0d7ff;
             color:#333;
+            z-index: 9996;
         }
     </style>
     <div class="footer">© 2025 MES System | Streamlit UI</div>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
