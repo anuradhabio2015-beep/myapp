@@ -231,4 +231,47 @@ sidebar = sidebar.replace('{R_MAIN}', 'active-main' if page=='reports' else '')
 sidebar = sidebar.replace('{S_MAIN}', 'active-main' if page=='settings' else '')
 
 sidebar = sidebar.replace('{D_OV}', 'sub-active' if page=='dashboard' and sub in ('overview','') else '')
-sidebar = sidebar.replace('{D_ST}', 'sub-active' if page=='dashboard' and sub=='
+sidebar = sidebar.replace('{D_ST}', 'sub-active' if page=='dashboard' and sub=='stations' else '')
+sidebar = sidebar.replace('{R_D}', 'sub-active' if page=='reports' and sub=='daily' else '')
+sidebar = sidebar.replace('{R_M}', 'sub-active' if page=='reports' and sub=='monthly' else '')
+sidebar = sidebar.replace('{S_U}', 'sub-active' if page=='settings' and sub=='users' else '')
+sidebar = sidebar.replace('{S_S}', 'sub-active' if page=='settings' and sub=='system' else '')
+
+st.markdown(sidebar, unsafe_allow_html=True)
+
+# -----------------------------
+# MAIN CONTENT
+# -----------------------------
+title_text = page.capitalize() + (f" — {sub.capitalize()}" if sub else "")
+st.title(title_text)
+
+if page == 'dashboard':
+    if sub in ('overview',''):
+        st.header('Overview')
+        st.write('Summary KPIs, throughput, OEE, etc.')
+    elif sub == 'stations':
+        st.header('Stations')
+        st.write('Station list, status, alarms, cycle times.')
+
+elif page == 'reports':
+    if sub == 'daily':
+        st.header('Daily Reports')
+        st.write('Daily production, shift summary.')
+    elif sub == 'monthly':
+        st.header('Monthly Reports')
+        st.write('Monthly trends, paretos, scrap analysis.')
+
+elif page == 'settings':
+    if sub == 'users':
+        st.header('User Management')
+        st.write('Create / edit users, roles, permissions.')
+    elif sub == 'system':
+        st.header('System Configuration')
+        st.write('Integrations, PLC connections, system params.')
+
+# -----------------------------
+# FOOTER
+# -----------------------------
+st.markdown("""
+<div class='footer'>© 2025 MES Hybrid — Streamlit UI</div>
+""", unsafe_allow_html=True)
