@@ -12,6 +12,27 @@ header {visibility: hidden;}
 footer {visibility: hidden;}
 /* Optional: hide the toolbar in newer Streamlit versions */
 [data-testid="stToolbar"] {display: none}
+/* Toggle Button */
+.toggle-btn {
+  position: fixed;
+  top: 160px;
+  left: 10px;
+  background: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 999;
+}
+
+/* Collapsed state */
+.custom-side-menu.collapsed {
+  margin-left: -220px;
+  transition: margin-left 0.3s ease;
+}
+.custom-side-menu {
+  transition: margin-left 0.3s ease;
+}
 </style>
 """
 st.markdown(HIDE_STEAMLIT_STYLE, unsafe_allow_html=True)
@@ -102,7 +123,7 @@ SIDE_MENU_STYLE = """
 st.markdown(SIDE_MENU_STYLE, unsafe_allow_html=True)
 
 side_menu_html = """
-<div class="custom-side-menu">
+<div class="custom-side-menu" id="sideMenu">
   <a href="#">🏠 Dashboard</a>
   <a href="#">📦 Orders</a>
   <a href="#">🏭 Production</a>
@@ -110,6 +131,11 @@ side_menu_html = """
   <a href="#">📊 Reports</a>
 </div>
 """
+
+# Toggle button
+st.markdown("""
+<div class='toggle-btn' onclick="document.getElementById('sideMenu').classList.toggle('collapsed')">☰</div>
+""", unsafe_allow_html=True)
 
 st.markdown(side_menu_html, unsafe_allow_html=True)
 
