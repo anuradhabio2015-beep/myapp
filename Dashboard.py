@@ -17,9 +17,11 @@ st.markdown(hide_default, unsafe_allow_html=True)
 # -------------------------------------------------------
 # ROUTING: page & sub
 # -------------------------------------------------------
-params = st.query_params
-page = params.get("page", "dashboard")
-sub  = params.get("sub", "")  # can be empty string when not set
+params = st.experimental_get_query_params()
+
+page = params.get("page", ["dashboard"])[0]
+sub  = params.get("sub", [""])[0]
+
 
 
 # -------------------------------------------------------
