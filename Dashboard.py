@@ -144,7 +144,7 @@ if st.session_state["dark"]:
 # ---------------------------
 # Header HTML (renders top bar)
 # ---------------------------
-header_html = f"""
+header_html = """
 <div class="custom-header">
   <div class="header-left">
     <img class="header-logo" src="https://via.placeholder.com/80" />
@@ -156,7 +156,7 @@ header_html = f"""
 
   <div style="display:flex;align-items:center;gap:12px;">
     <div class="header-icons">
-      <a class="icon-link" href="javascript:void(0)" onclick="(function(){})()">🏠 Home</a>
+      <a class="icon-link" href="javascript:void(0)" onclick="(function(){ })()">🏠 Home</a>
 
       <div class="dropdown">
         <button class="dropdown-btn">📁 Reports ▼</button>
@@ -185,16 +185,10 @@ header_html = f"""
       <a class="icon-link" href="?page=settings">⚙️ Settings</a>
     </div>
 
-    <!-- Notification bell -->
     <div style="position:relative;">
       <button class="icon-link" onclick="document.querySelector('#alerts').scrollIntoView();">🔔 Notifications</button>
-      {"<span class='badge'>{}</span>".format(st.session_state['unread_count']) if st.session_state['unread_count']>0 else ""}
     </div>
 
-    <!-- Dark mode toggle -->
-    <button class="icon-link" onclick="document.querySelector('[data-testid=dark-toggle]').click();">🌓</button>
-
-    <!-- Profile -->
     <div class="profile-dropdown" style="margin-left:6px;">
       <button class="dropdown-btn">👤 Rahul ▼</button>
       <div class="profile-content">
@@ -204,10 +198,10 @@ header_html = f"""
     </div>
 
   </div>
-
 </div>
 """
 st.markdown(header_html, unsafe_allow_html=True)
+
 
 # ---------------------------
 # Left vertical icon nav
