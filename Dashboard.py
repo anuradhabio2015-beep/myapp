@@ -12,22 +12,19 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
-
 # -------------------------------------------------------
-# ROUTING: page & sub
+# ROUTING
 # -------------------------------------------------------
 params = st.query_params
 page = params.get("page", "dashboard")
-sub  = params.get("sub", "")  # can be empty string when not set
-
+sub  = params.get("sub", "")
 
 # -------------------------------------------------------
-# TOP HEADER + HORIZONTAL SUB-MENU (below header)
+# TOP HEADER + TOP SUBMENU
 # -------------------------------------------------------
-top_header = f"""
+top_header = """
     <style>
-        /* top header */
-        .top-header {{
+        .top-header {
             position: fixed;
             top: 0;
             left: 0;
@@ -42,173 +39,132 @@ top_header = f"""
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
-        }}
+        }
 
-        /* horizontal sub menu below header */
-        .top-submenu {{
+        .top-submenu {
             position: fixed;
             top: 64px;
-            left: 230px;             /* same as left sidebar width */
+            left: 230px;
             right: 0;
             height: 44px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.98), rgba(250,250,250,0.98));
+            background: #f7f9ff;
             display: flex;
             align-items: center;
-            padding-left: 18px;
-            gap: 14px;
-            border-bottom: 1px solid #ececec;
-            z-index: 9997;
-        }}
+            padding-left: 20px;
+            gap: 16px;
+            border-bottom: 1px solid #e6e6e6;
+            z-index: 9998;
+        }
 
-        .top-submenu a {{
+        .top-submenu a {
             text-decoration: none;
-            color: #444;
-            font-weight: 600;
             padding: 8px 12px;
             border-radius: 6px;
-            font-size: 14px;
-        }}
+            color: #333;
+            font-weight: 600;
+        }
 
-        .top-submenu a:hover {{
-            background: #eef4ff;
-            color: #0b3ea6;
-        }}
-
-        .top-submenu .active {{
+        .top-submenu a.active {
             background: #2c6bed;
-            color: white !important;
-        }}
+            color: white;
+        }
 
-        /* push main Streamlit content below header + submenu and right of sidebar */
-        .block-container {{
-            padding-top: 120px !important; /* header (64) + submenu (44) + gap */
-            margin-left: 230px !important;  /* width of left sidebar */
-            margin-right: 20px !important;
-        }}
+        .block-container {
+            padding-top: 120px !important;
+            margin-left: 230px !important;
+        }
     </style>
 
     <div class="top-header">
         <div>MES Application</div>
-        <div style="margin-right: 30px; font-weight: 600;">
-            <a style="color:white; text-decoration:none;" href="?page=dashboard">Dashboard</a>
-        </div>
+        <div style="margin-right: 30px;">Dashboard | Reports | Settings</div>
     </div>
 
     <div class="top-submenu">
-        <!-- dashboard subs -->
-        <a class="{('active' if (page=='dashboard' and sub in ['overview','stations',''] ) else '')}" href="?page=dashboard&sub=overview">Overview</a>
-        <a class="{('active' if (page=='dashboard' and sub=='stations') else '')}" href="?page=dashboard&sub=stations">Stations</a>
+        <a href="?page=dashboard&sub=overview" class="{dashboard_overview}">Overview</a>
+        <a href="?page=dashboard&sub=stations" class="{dashboard_stations}">Stations</a>
 
-        <!-- reports subs -->
-        <a class="{('active' if (page=='reports' and sub=='daily') else '')}" href="?page=reports&sub=daily">Daily</a>
-        <a class="{('active' if (page=='reports' and sub=='monthly') else '')}" href="?page=reports&sub=monthly">Monthly</a>
+        <a href="?page=reports&sub=daily" class="{reports_daily}">Daily</a>
+        <a href="?page=reports&sub=monthly" class="{reports_monthly}">Monthly</a>
 
-        <!-- settings subs -->
-        <a class="{('active' if (page=='settings' and sub=='users') else '')}" href="?page=settings&sub=users">Users</a>
-        <a class="{('active' if (page=='settings' and sub=='system') else '')}" href="?page=settings&sub=system">System</a>
+        <a href="?page=settings&sub=users" class="{settings_users}">Users</a>
+        <a href="?page=settings&sub=system" class="{settings_system}">System</a>
     </div>
 """
+
+# ACTIVE STATES FOR TOP SUBMENU
+top_header = top_header.format(
+    dashboard_overview="active" if page=="dashboard" and sub in ["overview", ""] else "",
+    dashboard_stations="active" if page=="dashboard" and sub=="stations" else "",
+    reports_daily="active" if page=="reports" and sub=="daily" else "",
+    reports_monthly="active" if page=="reports" and sub=="monthly" else "",
+    settings_users="active" if page=="settings" and sub=="users" else "",
+    settings_system="active" if page=="settings" and sub=="system" else "",
+)
+
 st.markdown(top_header, unsafe_allow_html=True)
 
-
 # -------------------------------------------------------
-# LEFT SIDEBAR with collapsible sub-menus (DETAILS/SUMMARY)
+# LEFT SIDEBAR (SAFE—NO F-STRING)
 # -------------------------------------------------------
-# compute active classes for main and sub items
-dash_active = "active" if page == "dashboard" else ""
-rep_active  = "active" if page == "reports" else ""
-set_active  = "active" if page == "settings" else ""
-
-dash_sub_overview = "sub-active" if (page=="dashboard" and sub in ["overview",""]) else ""
-dash_sub_stations = "sub-active" if (page=="dashboard" and sub=="stations") else ""
-
-rep_sub_daily  = "sub-active" if (page=="reports" and sub=="daily") else ""
-rep_sub_monthly= "sub-active" if (page=="reports" and sub=="monthly") else ""
-
-set_sub_users  = "sub-active" if (page=="settings" and sub=="users") else ""
-set_sub_system = "sub-active" if (page=="settings" and sub=="system") else ""
-
-left_menu = f"""
+left_menu = """
     <style>
-        .left-menu {{
+        .left-menu {
             position: fixed;
             top: 0;
             left: 0;
             width: 230px;
             height: 100%;
-            background-color: #f8fbff;
+            background: #f5f7ff;
             padding-top: 12px;
-            box-shadow: 2px 0px 6px rgba(0,0,0,0.06);
+            box-shadow: 2px 0 6px rgba(0,0,0,0.1);
             z-index: 9998;
-            overflow: auto;
-        }}
+        }
 
-        .left-menu .brand {{
+        .brand {
             padding: 14px 18px;
+            font-size: 18px;
             font-weight: 800;
             color: #2c6bed;
-            font-size: 18px;
-        }}
+        }
 
-        .menu-link {{
-            display:block;
-            padding: 12px 18px;
-            color: #1d1d1d;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 6px;
+        details {
             margin: 6px 10px;
-        }}
+            padding: 4px;
+        }
 
-        .menu-link:hover {{
-            background: #eaf0ff;
-            color: #0e47b7;
-        }}
-
-        .active {{
-            background: #2c6bed !important;
-            color: white !important;
-        }}
-
-        /* details (collapsible) styling */
-        details {{
-            margin: 6px 10px;
-            padding: 6px 6px;
-            border-radius: 6px;
-        }}
-
-        summary {{
-            list-style: none;
-            outline: none;
+        summary {
             padding: 10px 12px;
             font-weight: 700;
             cursor: pointer;
-            color: #1a1a1a;
             border-radius: 6px;
-        }}
+            list-style: none;
+        }
 
-        summary:hover {{
-            background: #eef4ff;
-        }}
+        summary:hover {
+            background: #dfe8ff;
+        }
 
-        /* sub-items */
-        .sub-item {{
-            display:block;
+        .sub-item {
+            display: block;
             padding: 8px 24px;
-            font-weight: 600;
             text-decoration: none;
             color: #222;
-            margin: 4px 8px;
+            margin: 4px 0;
             border-radius: 6px;
-        }}
+            font-weight: 600;
+        }
 
-        .sub-item:hover {{
-            background: #eef4ff;
-            color: #0b3ea6;
-        }}
+        .sub-item:hover {
+            background: #edf2ff;
+        }
 
-        .sub-active {{
+        .active-main {
+            background: #2c6bed !important;
+            color: white !important;
+        }
+
+        .sub-active {
             background: #1f66d6 !important;
             color: white !important;
         }
@@ -217,98 +173,86 @@ left_menu = f"""
     <div class="left-menu">
         <div class="brand">MES Application</div>
 
-        <!-- Dashboard group -->
         <details open>
-            <summary class="menu-link {'active' if dash_active else ''}">📊 Dashboard</summary>
-            <a class="sub-item {dash_sub_overview}" href="?page=dashboard&sub=overview">Overview</a>
-            <a class="sub-item {dash_sub_stations}" href="?page=dashboard&sub=stations">Stations</a>
+            <summary class="active-main">📊 Dashboard</summary>
+            <a href="?page=dashboard&sub=overview" class="sub-item {dash_ov}">Overview</a>
+            <a href="?page=dashboard&sub=stations" class="sub-item {dash_st}">Stations</a>
         </details>
 
-        <!-- Reports group -->
         <details>
-            <summary class="menu-link {'active' if rep_active else ''}">📁 Reports</summary>
-            <a class="sub-item {rep_sub_daily}" href="?page=reports&sub=daily">Daily</a>
-            <a class="sub-item {rep_sub_monthly}" href="?page=reports&sub=monthly">Monthly</a>
+            <summary class="{reports_active}">📁 Reports</summary>
+            <a href="?page=reports&sub=daily" class="sub-item {rep_d}">Daily</a>
+            <a href="?page=reports&sub=monthly" class="sub-item {rep_m}">Monthly</a>
         </details>
 
-        <!-- Settings group -->
         <details>
-            <summary class="menu-link {'active' if set_active else ''}">⚙️ Settings</summary>
-            <a class="sub-item {set_sub_users}" href="?page=settings&sub=users">Users</a>
-            <a class="sub-item {set_sub_system}" href="?page=settings&sub=system">System</a>
+            <summary class="{settings_active}">⚙️ Settings</summary>
+            <a href="?page=settings&sub=users" class="sub-item {set_u}">Users</a>
+            <a href="?page=settings&sub=system" class="sub-item {set_s}">System</a>
         </details>
     </div>
 """
+
+# APPLY ACTIVE CLASSES
+left_menu = left_menu.format(
+    dash_ov="sub-active" if sub in ["overview",""] and page=="dashboard" else "",
+    dash_st="sub-active" if sub=="stations" and page=="dashboard" else "",
+
+    reports_active="active-main" if page=="reports" else "",
+    rep_d="sub-active" if sub=="daily" and page=="reports" else "",
+    rep_m="sub-active" if sub=="monthly" and page=="reports" else "",
+
+    settings_active="active-main" if page=="settings" else "",
+    set_u="sub-active" if sub=="users" and page=="settings" else "",
+    set_s="sub-active" if sub=="system" and page=="settings" else "",
+)
+
 st.markdown(left_menu, unsafe_allow_html=True)
 
-
 # -------------------------------------------------------
-# MAIN CONTENT AREA (right side) — show based on page & sub
+# MAIN CONTENT
 # -------------------------------------------------------
-def show_dashboard(subpage):
-    st.header("📊 Dashboard")
-    if subpage in ["overview", ""]:
-        st.subheader("Overview")
-        st.write("Summary KPIs, throughput, OEE, etc.")
-    elif subpage == "stations":
-        st.subheader("Stations")
-        st.write("Station list, status, alarms, cycle times.")
-
-def show_reports(subpage):
-    st.header("📁 Reports")
-    if subpage == "daily":
-        st.subheader("Daily Reports")
-        st.write("Daily production, shift summary.")
-    elif subpage == "monthly":
-        st.subheader("Monthly Reports")
-        st.write("Monthly trends, paretos, scrap analysis.")
-    else:
-        st.write("Select a report from the submenu.")
-
-def show_settings(subpage):
-    st.header("⚙️ Settings")
-    if subpage == "users":
-        st.subheader("User Management")
-        st.write("Create / edit users, roles, permissions.")
-    elif subpage == "system":
-        st.subheader("System Configuration")
-        st.write("Integrations, PLC connections, system params.")
-    else:
-        st.write("Select a settings option from the submenu.")
-
+st.title(f"{page.capitalize()} - {sub.capitalize() if sub else ''}")
 
 if page == "dashboard":
-    show_dashboard(sub)
+    if sub in ["overview", ""]:
+        st.subheader("Overview")
+        st.write("Dashboard Overview Content…")
+    elif sub == "stations":
+        st.subheader("Stations")
+        st.write("Station details, status, KPIs…")
+
 elif page == "reports":
-    show_reports(sub)
+    if sub == "daily":
+        st.subheader("Daily Reports")
+    elif sub == "monthly":
+        st.subheader("Monthly Reports")
+
 elif page == "settings":
-    show_settings(sub)
-else:
-    st.write("Page not found — use the left menu.")
-
+    if sub == "users":
+        st.subheader("User Management")
+    elif sub == "system":
+        st.subheader("System Settings")
 
 # -------------------------------------------------------
-# OPTIONAL FOOTER (aligned with content area)
+# FOOTER
 # -------------------------------------------------------
-custom_footer = """
+st.markdown(
+    """
     <style>
-        .custom-footer {
+        .footer {
             position: fixed;
             bottom: 0;
-            left: 230px;   /* aligned under content area */
+            left: 230px;
             width: calc(100% - 230px);
-            background-color: #f1f5ff;
-            color: #333;
             text-align: center;
-            padding: 10px;
-            font-size: 13px;
-            z-index: 9996;
-            border-top: 1px solid #e6ecff;
+            background: #e8ecff;
+            padding: 8px;
+            border-top: 1px solid #d0d7ff;
+            color:#333;
         }
     </style>
-
-    <div class="custom-footer">
-        © 2025 MES System | Powered by Python + Streamlit
-    </div>
-"""
-st.markdown(custom_footer, unsafe_allow_html=True)
+    <div class="footer">© 2025 MES System | Streamlit UI</div>
+    """,
+    unsafe_allow_html=True
+)
