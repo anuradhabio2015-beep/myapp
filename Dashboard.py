@@ -1,261 +1,171 @@
 import streamlit as st
 
-# Page config
-st.set_page_config(page_title="My App", page_icon=":sparkles:", layout="wide")
-
-# === Hide default Streamlit header/menu/footer ===
-HIDE_STEAMLIT_STYLE = """
-<style>
-/* Modern GlassMorphic Theme */
-body {
-  background: #f5f7fb;
-}
-
-.custom-header-modern {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 30px;
-  border-radius: 20px;
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.4);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-}
-
-.custom-header-modern .title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #222;
-  margin: 0;
-}
-
-.custom-header-modern .subtitle {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
-
-/* Beautiful Side Menu */
-.custom-side-menu {
-  position: fixed;
-  top: 160px;
-  left: 0;
-  width: 240px;
-  height: 75%;
-  padding: 25px 18px;
-  border-radius: 0 20px 20px 0;
-  background: rgba(255,255,255,0.7);
-  backdrop-filter: blur(15px);
-  border-right: 1px solid rgba(200,200,200,0.5);
-  box-shadow: 4px 0 20px rgba(0,0,0,0.06);
-  transition: margin-left 0.35s ease;
-}
-
-.custom-side-menu a {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 12px;
-  color: #222;
-  background: rgba(255,255,255,0.6);
-  margin-bottom: 10px;
-  transition: all 0.2s ease;
-}
-
-.custom-side-menu a:hover {
-  background: #ece9ff;
-  transform: translateX(6px);
-}
-
-/* Collapsed Mode */
-.custom-side-menu.collapsed {
-  margin-left: -220px;
-}
-
-/* Modern Toggle Button */
-.toggle-btn {
-  position: fixed;
-  top: 170px;
-  left: 10px;
-  font-size: 22px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: white;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-  cursor: pointer;
-  z-index: 999;
-  transition: 0.2s;
-}
-.toggle-btn:hover {
-  transform: scale(1.08);
-}
-
-/* Smooth Content Shift */
-.block-container {
-  margin-left: 260px;
-  transition: margin-left 0.35s ease;
-}
-
-/* Hide the top header (Streamlit logo) */
-header {visibility: hidden;}
-/* Hide the hamburger menu and "Made with Streamlit" footer */
-footer {visibility: hidden;}
-/* Optional: hide the toolbar in newer Streamlit versions */
-[data-testid="stToolbar"] {display: none}
-/* Toggle Button */
-.toggle-btn {
-  position: fixed;
-  top: 160px;
-  left: 10px;
-  background: white;
-  padding: 8px 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-  cursor: pointer;
-  z-index: 999;
-}
-
-/* Collapsed state */
-.custom-side-menu.collapsed {
-  margin-left: -220px;
-  transition: margin-left 0.3s ease;
-}
-.custom-side-menu {
-  transition: margin-left 0.3s ease;
-}
-</style>
-"""
-st.markdown(HIDE_STEAMLIT_STYLE, unsafe_allow_html=True)
-
-# === Custom header ===
-# You can replace the logo path with a URL or local file (e.g., "./assets/logo.png")
-LOGO_PATH = "https://placehold.co/80x80/png?text=Logo"  # replace with your logo
-
-CUSTOM_HEADER_STYLE = """
-<style>
-.custom-header-modern {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(250,250,255,0.6));
-}
-.custom-header .title {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 0;
-}
-.custom-header .subtitle {
-  font-size: 13px;
-  color: #555;
-  margin: 0;
-}
-/* Make header sticky at top (optional) */
-.stApp > div:first-child {
-  position: sticky;
-  top: 8px;
-  z-index: 999;
-}
-</style>
-"""
-
-st.markdown(CUSTOM_HEADER_STYLE, unsafe_allow_html=True)
-
-header_html = f"""
-<div class="custom-header">
-  <img src="{LOGO_PATH}" width="64" height="64" style="border-radius:12px;"/>
-  <div>
-    <p class="title">My Customized App</p>
-    <p class="subtitle">Short description or tagline goes here</p>
-  </div>
-  <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
-    <!-- Add small action buttons/links -->
-    <a href="#" target="_self">Docs</a>
-    <a href="#" target="_self">Support</a>
-  </div>
-</div>
-"""
-
-st.markdown(header_html, unsafe_allow_html=True)
-
-# === Side Menu (Custom) ===
-SIDE_MENU_STYLE = """
-<style>
-.custom-side-menu {
-  position: fixed;
-  top: 150px;
-  top: 90px;
-  left: 0;
-  width: 220px;
-  height: 100%;
-  background: #ffffff;
-  padding: 20px 15px;
-  box-shadow: 4px 0 15px rgba(0,0,0,0.08);
-  border-radius: 0 12px 12px 0;
-  z-index: 998;
-}
-.custom-side-menu a {
-  display: block;
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  border-radius: 8px;
-  text-decoration: none;
-  color: #333;
-  font-weight: 500;
-}
-.custom-side-menu a:hover {
-  background: #f2f2ff;
-}
-</style>
-"""
-st.markdown(SIDE_MENU_STYLE, unsafe_allow_html=True)
-
-side_menu_html = """
-<div class="custom-side-menu" id="sideMenu">
-  <a href="#">🏠 Dashboard</a>
-  <a href="#">📦 Orders</a>
-  <a href="#">🏭 Production</a>
-  <a href="#">🔧 Settings</a>
-  <a href="#">📊 Reports</a>
-</div>
-"""
-
-# Toggle button
-st.markdown("""
-<div class='toggle-btn' onclick="document.getElementById('sideMenu').classList.toggle('collapsed')">☰</div>
-""", unsafe_allow_html=True)
-
-st.markdown(side_menu_html, unsafe_allow_html=True)
-
-# Shift main layout right to avoid overlap
+# -----------------------------------
+# Remove Streamlit Default UI
+# -----------------------------------
 st.markdown("""
 <style>
-.block-container {
-  margin-left: 260px;
-}
+    header[data-testid="stHeader"] {display: none;}
+    [data-testid="stToolbar"] {display: none;}
+    #MainMenu {visibility:hidden;}
+    footer {visibility:hidden;}
 </style>
 """, unsafe_allow_html=True)
 
-# === Rest of app content ===
-st.write("Welcome — the default Streamlit header is hidden and a custom header is shown instead.")
 
-# Example layout
-col1, col2 = st.columns([3,1])
-with col1:
-    st.header("Main content area")
-    st.write("Put your app UI here — charts, tables, controls, forms, etc.")
-with col2:
-    st.header("Sidebar-like area")
-    st.button("Primary Action")
 
-# Notes for customization (keep these comments in the file):
-# - Replace LOGO_PATH with your logo file or URL. For a local file, use st.image('./assets/logo.png') instead.
-# - Tweak CSS in CUSTOM_HEADER_STYLE to change colors, spacing, or make the header full-width.
-# - If Streamlit updates its DOM structure, the CSS selectors (header, footer, [data-testid]) may need adjustment.
-# - For accessibility, ensure alt text and semantic HTML if you expand the header.
+# -----------------------------------
+# Groww Sidebar Style (Vertical Navbar)
+# -----------------------------------
+groww_sidebar_css = """
+<style>
+
+[data-testid="stSidebar"] {
+    background-color: #ffffff !important;
+    padding-top: 20px;
+    border-right: 1px solid #e5e5e5;
+    width: 220px !important;
+}
+
+.sidebar-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f4df5;
+    margin-bottom: 30px;
+    margin-left: 10px;
+}
+
+.nav-item {
+    font-size: 16px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    color: #333333;
+}
+
+.nav-item:hover {
+    background-color: #f2f6ff;
+    color: #1f4df5;
+}
+
+.nav-selected {
+    background-color: #e7edff;
+    color: #1f4df5;
+    font-weight: 600;
+}
+
+</style>
+"""
+
+st.markdown(groww_sidebar_css, unsafe_allow_html=True)
+
+
+
+# -----------------------------------
+# Sidebar Menu
+# -----------------------------------
+with st.sidebar:
+    st.markdown('<div class="sidebar-title">Groww Dashboard</div>', unsafe_allow_html=True)
+
+    menu_items = [
+        "🏠 Home",
+        "📈 Markets",
+        "💼 Portfolio",
+        "🔍 Research",
+        "⚙️ Settings",
+        "🤖 AI Insights"
+    ]
+
+    selected_menu = st.radio(
+        "",
+        menu_items,
+        label_visibility="collapsed"
+    )
+
+
+
+# -----------------------------------
+# Top Groww Header with Search Bar
+# -----------------------------------
+st.markdown("""
+<style>
+.top-header {
+    background-color: #ffffff;
+    padding: 15px 25px;
+    border-bottom: 1px solid #e6e6e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.search-box {
+    flex: 1;
+    max-width: 400px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid #dcdcdc;
+    font-size: 16px;
+}
+
+.search-input:focus {
+    outline: none;
+    border: 1px solid #1f4df5;
+}
+
+.profile-icon {
+    font-size: 22px;
+    margin-left: 25px;
+    cursor: pointer;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div class="top-header">
+    <div class="search-box">
+        <input class="search-input" type="text" placeholder="Search stocks, mutual funds, ETFs...">
+    </div>
+    <div class="profile-icon">👤</div>
+</div>
+""", unsafe_allow_html=True)
+
+
+
+# -----------------------------------
+# Page Content Renderer
+# -----------------------------------
+st.write("")
+
+if selected_menu == "🏠 Home":
+    st.header("🏠 Home")
+    st.write("Welcome to your Groww-style dashboard!")
+
+elif selected_menu == "📈 Markets":
+    st.header("📈 Markets")
+    st.write("View live markets, indices, and top gainers.")
+
+elif selected_menu == "💼 Portfolio":
+    st.header("💼 Portfolio")
+    st.write("Your holdings will appear here.")
+
+elif selected_menu == "🔍 Research":
+    st.header("🔍 Research")
+    st.write("Search for stocks, mutual funds, and ETFs.")
+
+elif selected_menu == "⚙️ Settings":
+    st.header("⚙️ Settings")
+    st.write("Manage your preferences.")
+
+elif selected_menu == "🤖 AI Insights":
+    st.header("🤖 AI Insights")
+    st.write("Your AI market assistant is ready!")
