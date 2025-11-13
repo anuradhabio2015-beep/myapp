@@ -5,9 +5,9 @@ import streamlit as st
 # -------------------------------------------------------
 hide_default = """
     <style>
-        #MainMenu {visibility: hidden;}
-        # header {visibility: hidden;}
-        # footer {visibility: hidden;}
+        MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
     </style>
 """
 st.markdown(hide_default, unsafe_allow_html=True)
