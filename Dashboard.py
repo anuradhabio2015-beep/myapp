@@ -62,10 +62,10 @@ st.markdown(custom_header, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# URL MODE FIX
+# NEW STREAMLIT QUERY PARAMS API (NO WARNING)
 # -------------------------------------------------------
-params = st.experimental_get_query_params()
-page = params.get("page", ["dashboard"])[0]     # FIXED
+params = st.query_params
+page = params.get("page", "dashboard")     # FIXED
 
 
 # -------------------------------------------------------
