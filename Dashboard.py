@@ -5,7 +5,7 @@ import streamlit as st
 # -------------------------------------------------------
 hide_default = """
     <style>
-        MainMenu {visibility: hidden;}
+        # MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility: hidden;}
     </style>
