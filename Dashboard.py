@@ -14,7 +14,7 @@ st.markdown(hide_default, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# FIXED TOP HEADER
+# FIXED TOP HEADER (FULL WIDTH)
 # -------------------------------------------------------
 top_header = """
     <style>
@@ -23,27 +23,30 @@ top_header = """
             top: 0;
             left: 0;
             width: 100%;
-            height: 55px;
+            height: 58px;
             background-color: #2c6bed;
             color: white;
-            padding: 12px 20px;
-            font-size: 20px;
+            padding: 14px 25px;
+            font-size: 21px;
             font-weight: 700;
-            z-index: 9999;
+            z-index: 10000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
         }
+
+        /* Push Streamlit layout down + right */
         .block-container {
-            padding-top: 70px !important;
-            margin-left: 230px !important;  /* content shifts RIGHT */
+            padding-top: 80px !important;
+            margin-left: 240px !important;  
+            max-width: 100% !important;
         }
     </style>
 
     <div class="top-header">
         <div>MES Application</div>
-        <div style="margin-right: 30px; font-weight: 500;">
+        <div style="margin-right: 30px; font-weight: 500; font-size: 16px;">
             Dashboard | Reports | Settings
         </div>
     </div>
@@ -51,39 +54,37 @@ top_header = """
 st.markdown(top_header, unsafe_allow_html=True)
 
 
-
 # -------------------------------------------------------
-# PAGE ROUTING
+# PAGE ROUTING (USING NEW API)
 # -------------------------------------------------------
 params = st.query_params
 page = params.get("page", "dashboard")
 
-DASH_ACTIVE = "active" if page == "dashboard" else ""
-REP_ACTIVE  = "active" if page == "reports" else ""
-SET_ACTIVE  = "active" if page == "settings" else ""
-
+DASH = "active" if page == "dashboard" else ""
+REPO = "active" if page == "reports" else ""
+SETT = "active" if page == "settings" else ""
 
 
 # -------------------------------------------------------
-# FULL-HEIGHT LEFT SIDEBAR MENU
+# FULL HEIGHT LEFT NAVIGATION PANEL
 # -------------------------------------------------------
-left_menu = f"""
+left_nav = f"""
     <style>
-        .left-menu {{
+        .left-nav {{
             position: fixed;
-            top: 55px;              /* BELOW HEADER */
+            top: 58px;
             left: 0;
-            width: 220px;
-            height: 100%;
-            background-color: #f2f5ff;
-            padding-top: 30px;
-            box-shadow: 2px 0px 4px rgba(0,0,0,0.1);
-            z-index: 9998;
+            width: 240px;
+            height: calc(100% - 58px);
+            background-color: #eef2ff;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 9999;
         }}
 
         .menu-item {{
-            padding: 12px 25px;
-            font-size: 16px;
+            padding: 14px 25px;
+            font-size: 17px;
             color: #1a1a1a;
             display: block;
             text-decoration: none;
@@ -91,8 +92,7 @@ left_menu = f"""
         }}
 
         .menu-item:hover {{
-            background-color: #dbe4ff;
-            cursor: pointer;
+            background-color: #d6dfff;
         }}
 
         .active {{
@@ -101,19 +101,17 @@ left_menu = f"""
         }}
     </style>
 
-    <div class="left-menu">
-        <a class="menu-item {DASH_ACTIVE}" href="?page=dashboard">📊 Dashboard</a>
-        <a class="menu-item {REP_ACTIVE}"  href="?page=reports">📁 Reports</a>
-        <a class="menu-item {SET_ACTIVE}"  href="?page=settings">⚙️ Settings</a>
+    <div class="left-nav">
+        <a class="menu-item {DASH}" href="?page=dashboard">📊 Dashboard</a>
+        <a class="menu-item {REPO}" href="?page=reports">📁 Reports</a>
+        <a class="menu-item {SETT}" href="?page=settings">⚙️ Settings</a>
     </div>
 """
-
-st.markdown(left_menu, unsafe_allow_html=True)
-
+st.markdown(left_nav, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# MAIN CONTENT AREA (RIGHT SIDE)
+# MAIN PAGE CONTENT (RIGHT SIDE)
 # -------------------------------------------------------
 if page == "dashboard":
     st.header("📊 Dashboard")
@@ -130,23 +128,22 @@ elif page == "settings":
     st.write("System configuration…")
 
 
-
 # -------------------------------------------------------
-# OPTIONAL CUSTOM FOOTER
+# OPTIONAL CUSTOM FOOTER (ALIGNED)
 # -------------------------------------------------------
 custom_footer = """
     <style>
         .custom-footer {
             position: fixed;
             bottom: 0;
-            left: 230px;   /* aligned under content */
-            width: calc(100% - 230px);
+            left: 240px;
+            width: calc(100% - 240px);
             background-color: #2c6bed;
             color: white;
             text-align: center;
             padding: 10px;
-            font-size: 14px;
             z-index: 9999;
+            font-size: 14px;
         }
     </style>
 
