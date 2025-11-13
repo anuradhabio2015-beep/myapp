@@ -149,6 +149,21 @@ CSS = """
 }
 </style>
 """
+# JS Router
+NAV_JS = """
+<script>
+function nav(page, sub){
+    const url = new URL(window.location.href);
+    url.searchParams.set('page', page);
+    if(sub){ url.searchParams.set('sub', sub); }
+    else{ url.searchParams.delete('sub'); }
+    window.location.href = url.toString();
+    return false;
+}
+</script>
+"""
+st.markdown(NAV_JS, unsafe_allow_html=True)
+
 st.markdown(CSS, unsafe_allow_html=True)
 
 # -----------------------------
@@ -162,9 +177,9 @@ HEADER = """
     <div class="header-sub">Hybrid — enterprise layout with modern styling</div>
   </div>
   <div class="header-links">
-    <a href="?page=dashboard">Dashboard</a>
-    <a href="?page=reports">Reports</a>
-    <a href="?page=settings">Settings</a>
+    <a href="#" onclick="return nav(=dashboard">Dashboard</a>
+    <a href="#" onclick="return nav(=reports">Reports</a>
+    <a href="#" onclick="return nav(=settings">Settings</a>
   </div>
 </div>
 """
@@ -175,14 +190,14 @@ st.markdown(HEADER, unsafe_allow_html=True)
 # -----------------------------
 sub_html = """
 <div class="submenu">
-  <a href="?page=dashboard&sub=overview" class="{D_OV}">Overview</a>
-  <a href="?page=dashboard&sub=stations" class="{D_ST}">Stations</a>
+  <a href="#" onclick="return nav(=dashboard&sub=overview" class="{D_OV}">Overview</a>
+  <a href="#" onclick="return nav(=dashboard&sub=stations" class="{D_ST}">Stations</a>
 
-  <a href="?page=reports&sub=daily" class="{R_D}">Daily</a>
-  <a href="?page=reports&sub=monthly" class="{R_M}">Monthly</a>
+  <a href="#" onclick="return nav(=reports&sub=daily" class="{R_D}">Daily</a>
+  <a href="#" onclick="return nav(=reports&sub=monthly" class="{R_M}">Monthly</a>
 
-  <a href="?page=settings&sub=users" class="{S_U}">Users</a>
-  <a href="?page=settings&sub=system" class="{S_S}">System</a>
+  <a href="#" onclick="return nav(=settings&sub=users" class="{S_U}">Users</a>
+  <a href="#" onclick="return nav(=settings&sub=system" class="{S_S}">System</a>
 </div>
 """
 
@@ -204,20 +219,20 @@ sidebar = """
 
   <details {D_OPEN}>
     <summary class="{D_MAIN}">📊 Dashboard</summary>
-    <a href="?page=dashboard&sub=overview" class="{D_OV}">Overview</a>
-    <a href="?page=dashboard&sub=stations" class="{D_ST}">Stations</a>
+    <a href="#" onclick="return nav(=dashboard&sub=overview" class="{D_OV}">Overview</a>
+    <a href="#" onclick="return nav(=dashboard&sub=stations" class="{D_ST}">Stations</a>
   </details>
 
   <details {R_OPEN}>
     <summary class="{R_MAIN}">📁 Reports</summary>
-    <a href="?page=reports&sub=daily" class="{R_D}">Daily</a>
-    <a href="?page=reports&sub=monthly" class="{R_M}">Monthly</a>
+    <a href="#" onclick="return nav(=reports&sub=daily" class="{R_D}">Daily</a>
+    <a href="#" onclick="return nav(=reports&sub=monthly" class="{R_M}">Monthly</a>
   </details>
 
   <details {S_OPEN}>
     <summary class="{S_MAIN}">⚙️ Settings</summary>
-    <a href="?page=settings&sub=users" class="{S_U}">Users</a>
-    <a href="?page=settings&sub=system" class="{S_S}">System</a>
+    <a href="#" onclick="return nav(=settings&sub=users" class="{S_U}">Users</a>
+    <a href="#" onclick="return nav(=settings&sub=system" class="{S_S}">System</a>
   </details>
 </div>
 """
