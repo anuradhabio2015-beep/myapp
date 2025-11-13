@@ -57,7 +57,7 @@ st.markdown(
 )
 
 # ------------------------------------------------------
-# TOP-LEVEL TABS (Dashboard | Reports | Settings)
+# TOP‑LEVEL TABS (Dashboard | Reports | Settings)
 # ------------------------------------------------------
 main_tabs = st.tabs(["Dashboard", "Reports", "Settings"])
 
