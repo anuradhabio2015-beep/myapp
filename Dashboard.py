@@ -5,7 +5,7 @@ import streamlit as st
 # -------------------------------------------------------
 hide_default = """
     <style>
-        # MainMenu {visibility: hidden;}
+        #MainMenu {visibility: hidden;}
         header {visibility: hidden;}
         footer {visibility: hidden;}
     </style>
@@ -64,6 +64,13 @@ custom_header = """
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
+
+# -------------------------------------------------------
+# SIDEBAR
+# -------------------------------------------------------
+with st.sidebar:
+    st.title("📌 Navigation")
+    side_sel = st.radio("Go to:", ["Dashboard", "Reports", "Settings"])
 
 
 # -------------------------------------------------------
