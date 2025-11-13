@@ -132,9 +132,9 @@ rep_sub_monthly= "sub-active" if (page=="reports" and sub=="monthly") else ""
 set_sub_users  = "sub-active" if (page=="settings" and sub=="users") else ""
 set_sub_system = "sub-active" if (page=="settings" and sub=="system") else ""
 
-left_menu = f"""
+left_menu = """
     <style>
-        .left-menu {{
+        .left-menu {
             position: fixed;
             top: 0;
             left: 0;
@@ -145,104 +145,42 @@ left_menu = f"""
             box-shadow: 2px 0px 6px rgba(0,0,0,0.06);
             z-index: 9998;
             overflow: auto;
-        }}
-
-        .left-menu .brand {{
-            padding: 14px 18px;
-            font-weight: 800;
-            color: #2c6bed;
-            font-size: 18px;
-        }}
-
-        .menu-link {{
-            display:block;
-            padding: 12px 18px;
-            color: #1d1d1d;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: 6px;
-            margin: 6px 10px;
-        }}
-
-        .menu-link:hover {{
-            background: #eaf0ff;
-            color: #0e47b7;
-        }}
-
-        .active {{
-            background: #2c6bed !important;
-            color: white !important;
-        }}
-
-        /* details (collapsible) styling */
-        details {{
-            margin: 6px 10px;
-            padding: 6px 6px;
-            border-radius: 6px;
-        }}
-
-        summary {{
-            list-style: none;
-            outline: none;
-            padding: 10px 12px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #1a1a1a;
-            border-radius: 6px;
-        }}
-
-        summary:hover {{
-            background: #eef4ff;
-        }}
-
-        /* sub-items */
-        .sub-item {{
-            display:block;
-            padding: 8px 24px;
-            font-weight: 600;
-            text-decoration: none;
-            color: #222;
-            margin: 4px 8px;
-            border-radius: 6px;
-        }}
-
-        .sub-item:hover {{
-            background: #eef4ff;
-            color: #0b3ea6;
-        }}
-
-        .sub-active {{
-            background: #1f66d6 !important;
-            color: white !important;
         }
+        ...
     </style>
 
     <div class="left-menu">
         <div class="brand">MES Application</div>
 
-        <!-- Dashboard group -->
         <details open>
-            <summary class="menu-link {'active' if dash_active else ''}">📊 Dashboard</summary>
+            <summary class="menu-link {dash_active}">📊 Dashboard</summary>
             <a class="sub-item {dash_sub_overview}" href="?page=dashboard&sub=overview">Overview</a>
             <a class="sub-item {dash_sub_stations}" href="?page=dashboard&sub=stations">Stations</a>
         </details>
 
-        <!-- Reports group -->
         <details>
-            <summary class="menu-link {'active' if rep_active else ''}">📁 Reports</summary>
+            <summary class="menu-link {rep_active}">📁 Reports</summary>
             <a class="sub-item {rep_sub_daily}" href="?page=reports&sub=daily">Daily</a>
             <a class="sub-item {rep_sub_monthly}" href="?page=reports&sub=monthly">Monthly</a>
         </details>
 
-        <!-- Settings group -->
         <details>
-            <summary class="menu-link {'active' if set_active else ''}">⚙️ Settings</summary>
+            <summary class="menu-link {set_active}">⚙️ Settings</summary>
             <a class="sub-item {set_sub_users}" href="?page=settings&sub=users">Users</a>
             <a class="sub-item {set_sub_system}" href="?page=settings&sub=system">System</a>
         </details>
     </div>
-"""
-st.markdown(left_menu, unsafe_allow_html=True)
+""".format(
+    dash_active=dash_active,
+    dash_sub_overview=dash_sub_overview,
+    dash_sub_stations=dash_sub_stations,
+    rep_active=rep_active,
+    rep_sub_daily=rep_sub_daily,
+    rep_sub_monthly=rep_sub_monthly,
+    set_active=set_active,
+    set_sub_users=set_sub_users,
+    set_sub_system=set_sub_system
+)
 
 
 # -------------------------------------------------------
