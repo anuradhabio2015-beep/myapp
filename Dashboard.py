@@ -1,123 +1,88 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import yfinance as yf
-from datetime import datetime, timedelta
-import plotly.graph_objects as go
-import traceback
 
-# --------------------------- CONFIG ---------------------------
-st.set_page_config(page_title="Bank Nifty Dashboard", page_icon="📈", layout="wide")
-st.title("📈 Bank Nifty – Resilient Streamlit Dashboard")
-st.caption("Fetches Bank Nifty data from Yahoo Finance and plots RSI + MACD candles without errors.")
+# Page config
+st.set_page_config(page_title="My App", page_icon=":sparkles:", layout="wide")
 
-# --------------------------- HELPERS ---------------------------
-def show_error(e):
-    st.error("⚠️ Unexpected error:")
-    st.code("".join(traceback.format_exception_only(type(e), e)))
+# === Hide default Streamlit header/menu/footer ===
+HIDE_STEAMLIT_STYLE = """
+<style>
+/* Hide the top header (Streamlit logo) */
+header {visibility: hidden;}
+/* Hide the hamburger menu and "Made with Streamlit" footer */
+footer {visibility: hidden;}
+/* Optional: hide the toolbar in newer Streamlit versions */
+[data-testid="stToolbar"] {display: none}
+</style>
+"""
+st.markdown(HIDE_STEAMLIT_STYLE, unsafe_allow_html=True)
 
-def ema(s, span): return s.ewm(span=span, adjust=False).mean()
+# === Custom header ===
+# You can replace the logo path with a URL or local file (e.g., "./assets/logo.png")
+LOGO_PATH = "https://placehold.co/80x80/png?text=Logo"  # replace with your logo
 
-def rsi(s, period=14):
-    d = s.diff()
-    g = d.clip(lower=0).rolling(period).mean()
-    l = -d.clip(upper=0).rolling(period).mean()
-    rs = g / l.replace(0, np.nan)
-    return 100 - (100 / (1 + rs))
+CUSTOM_HEADER_STYLE = """
+<style>
+.custom-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(250,250,255,0.6));
+}
+.custom-header .title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+.custom-header .subtitle {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+}
+/* Make header sticky at top (optional) */
+.stApp > div:first-child {
+  position: sticky;
+  top: 8px;
+  z-index: 999;
+}
+</style>
+"""
 
-def macd(s, fast=12, slow=26, signal=9):
-    m = ema(s, fast) - ema(s, slow)
-    sig = ema(m, signal)
-    return m, sig, m - sig
+st.markdown(CUSTOM_HEADER_STYLE, unsafe_allow_html=True)
 
-# --------------------------- DATA FETCH ---------------------------
-@st.cache_data(ttl=120)
-def get_banknifty(interval="15m", days=5):
-    ticker = "^NSEBANK"
-    start = datetime.now() - timedelta(days=days + 1)
-    df = yf.download(ticker, start=start, interval=interval, progress=False)
-    if df.empty:
-        raise ValueError("No data returned from Yahoo Finance.")
+header_html = f"""
+<div class="custom-header">
+  <img src="{LOGO_PATH}" width="64" height="64" style="border-radius:12px;"/>
+  <div>
+    <p class="title">My Customized App</p>
+    <p class="subtitle">Short description or tagline goes here</p>
+  </div>
+  <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+    <!-- Add small action buttons/links -->
+    <a href="#" target="_self">Docs</a>
+    <a href="#" target="_self">Support</a>
+  </div>
+</div>
+"""
 
-    # Flatten multi-index columns if any
-    df.columns = ["_".join(map(str, c)) if isinstance(c, tuple) else str(c) for c in df.columns]
-    df.reset_index(inplace=True)
+st.markdown(header_html, unsafe_allow_html=True)
 
-    # Identify the correct Close-price column
-    possible_close_cols = [c for c in df.columns if "close" in c.lower()]
-    if not possible_close_cols:
-        raise KeyError("No column found containing 'Close' in its name.")
-    close_col = possible_close_cols[0]
+# === Rest of app content ===
+st.write("Welcome — the default Streamlit header is hidden and a custom header is shown instead.")
 
-    # Create standardized columns
-    rename_map = {close_col: "Close"}
-    for c in ["Open", "High", "Low", "Volume"]:
-        for col in df.columns:
-            if c.lower() in col.lower():
-                rename_map[col] = c
-    df.rename(columns=rename_map, inplace=True)
+# Example layout
+col1, col2 = st.columns([3,1])
+with col1:
+    st.header("Main content area")
+    st.write("Put your app UI here — charts, tables, controls, forms, etc.")
+with col2:
+    st.header("Sidebar-like area")
+    st.button("Primary Action")
 
-    if "Date" not in df.columns:
-        date_col = [c for c in df.columns if "date" in c.lower()]
-        if date_col:
-            df.rename(columns={date_col[0]: "Date"}, inplace=True)
-        else:
-            df.insert(0, "Date", df.index)
-
-    # Ensure datatypes
-    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-    for c in ["Open", "High", "Low", "Close", "Volume"]:
-        if c in df.columns:
-            df[c] = pd.to_numeric(df[c], errors="coerce")
-    df = df.dropna(subset=["Date", "Close"])
-    return df
-
-# --------------------------- SIDEBAR ---------------------------
-st.sidebar.header("⚙️ Settings")
-interval = st.sidebar.selectbox("Interval", ["5m","15m","30m","60m","1d"], index=1)
-days = st.sidebar.slider("Lookback Days", 1, 30, 5)
-rsi_period = st.sidebar.slider("RSI Period", 5, 30, 14)
-
-# --------------------------- MAIN ---------------------------
-try:
-    df = get_banknifty(interval, days)
-    df["RSI"] = rsi(df["Close"], rsi_period)
-    df["MACD"], df["MACD_Signal"], df["MACD_Hist"] = macd(df["Close"])
-
-    latest = df.iloc[-1]
-    close_val = float(latest["Close"])
-    rsi_val = float(latest["RSI"])
-    macd_val = float(latest["MACD"])
-
-    # Metrics
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Last Close", f"{close_val:,.2f}")
-    c2.metric("RSI", f"{rsi_val:,.1f}")
-    c3.metric("MACD", f"{macd_val:,.2f}")
-
-    # Chart
-    xvals = df["Date"].tolist()
-    fig = go.Figure()
-    fig.add_trace(go.Candlestick(
-        x=xvals,
-        open=df.get("Open", df["Close"]).tolist(),
-        high=df.get("High", df["Close"]).tolist(),
-        low=df.get("Low", df["Close"]).tolist(),
-        close=df["Close"].tolist(),
-        name="Bank Nifty"
-    ))
-    fig.update_layout(
-        title="Bank Nifty Candlestick",
-        xaxis_rangeslider_visible=False,
-        height=600,
-        margin=dict(l=20, r=20, t=40, b=20)
-    )
-    st.plotly_chart(fig, use_container_width=True)
-
-    with st.expander("📊 Raw Data (Last 20 Rows)"):
-        st.dataframe(df.tail(20))
-
-except Exception as e:
-    show_error(e)
-
-st.caption("⚠️ For educational use only — not financial advice.")
+# Notes for customization (keep these comments in the file):
+# - Replace LOGO_PATH with your logo file or URL. For a local file, use st.image('./assets/logo.png') instead.
+# - Tweak CSS in CUSTOM_HEADER_STYLE to change colors, spacing, or make the header full-width.
+# - If Streamlit updates its DOM structure, the CSS selectors (header, footer, [data-testid]) may need adjustment.
+# - For accessibility, ensure alt text and semantic HTML if you expand the header.
