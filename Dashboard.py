@@ -16,139 +16,133 @@ st.markdown(hide_default, unsafe_allow_html=True)
 # FIXED CUSTOM HEADER (TOP)
 # -------------------------------------------------------
 custom_header = """
-    <style>
-        /* HEADER CONTAINER */
-        .custom-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            background-color: #2c6bed;
-            color: white;
-            padding: 10px 25px;
-            z-index: 9999;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
+<style>
+    .custom-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        background-color: #2c6bed;
+        color: white;
+        padding: 10px 25px;
+        z-index: 9999;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
 
-        /* LOGO + APP NAME */
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-        .header-logo {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-        }
+    .header-logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+    }
 
-        .header-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: white;
-        }
+    .header-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: white;
+    }
 
-        /* NAVIGATION ICON LINKS */
-        .header-icons a {
-            margin-left: 25px;
-            color: white;
-            font-size: 18px;
-            text-decoration: none;
-            font-weight: 500;
-        }
+    .header-icons a {
+        margin-left: 25px;
+        color: white;
+        font-size: 18px;
+        text-decoration: none;
+        font-weight: 500;
+    }
 
-        .header-icons a:hover {
-            text-decoration: underline;
-        }
+    .header-icons a:hover {
+        text-decoration: underline;
+    }
 
-        /* Profile Dropdown */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+    .dropdown {
+        position: relative;
+        display: inline-block;
+    }
 
-        .dropdown-btn {
-            background: none;
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    .dropdown-btn {
+        background: none;
+        color: white;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+    }
 
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #ffffff;
-            min-width: 160px;
-            border-radius: 6px;
-            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
-            right: 0;
-            z-index: 20000;
-        }
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #ffffff;
+        min-width: 160px;
+        border-radius: 6px;
+        box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+        right: 0;
+        z-index: 20000;
+    }
 
-        .dropdown-content a {
-            color: black;
-            padding: 10px 15px;
-            text-decoration: none;
-            display: block;
-        }
+    .dropdown-content a {
+        color: black;
+        padding: 10px 15px;
+        text-decoration: none;
+        display: block;
+    }
 
-        .dropdown-content a:hover {
-            background-color: #f1f1f1;
-        }
+    .dropdown-content a:hover {
+        background-color: #f1f1f1;
+    }
 
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
+    .dropdown:hover .dropdown-content {
+        display: block;
+    }
 
-        /* Push content below header */
-        .block-container {
-            padding-top: 110px !important;
-        }
-    </style>
+    .block-container {
+        padding-top: 110px !important;
+    }
+</style>
 
-    <div class="custom-header">
-        
-        <!-- LEFT SECTION: LOGO + APP NAME -->
-        <div class="header-left">
-            <img class="header-logo" src="https://via.placeholder.com/40" />
-            <span class="header-title">MES Application</span>
-        </div>
+<div class="custom-header">
 
-        <!-- CENTER SECTION: ICON NAVIGATION -->
-        <div class="header-icons">
-            <a href="?page=dashboard">🏠 Home</a>
+    <div class="header-left">
+        <img class="header-logo" src="https://via.placeholder.com/40" />
+        <span class="header-title">MES Application</span>
+    </div>
 
-            <!-- DROPDOWN MENU UNDER REPORTS -->
-            <div class="dropdown" style="display:inline-block;">
-                <button class="dropdown-btn">📁 Reports ▼</button>
-                <div class="dropdown-content">
-                    <a href="?page=daily">Daily Report</a>
-                    <a href="?page=shift">Shift Report</a>
-                    <a href="?page=quality">Quality Report</a>
-                </div>
-            </div>
+    <div class="header-icons">
 
-            <a href="?page=settings">⚙️ Settings</a>
-        </div>
+        <a href="?page=dashboard">🏠 Home</a>
 
-        <!-- RIGHT SECTION: USER PROFILE -->
-        <div class="dropdown">
-            <button class="dropdown-btn">👤 User ▼</button>
+        <div class="dropdown" style="display:inline-block;">
+            <button class="dropdown-btn">📁 Reports ▼</button>
             <div class="dropdown-content">
-                <a href="?page=profile">Profile</a>
-                <a href="?page=logout">Logout</a>
+                <a href="?page=daily">Daily Report</a>
+                <a href="?page=shift">Shift Report</a>
+                <a href="?page=quality">Quality Report</a>
             </div>
         </div>
+
+        <a href="?page=settings">⚙️ Settings</a>
 
     </div>
+
+    <div class="dropdown">
+        <button class="dropdown-btn">👤 User ▼</button>
+        <div class="dropdown-content">
+            <a href="?page=profile">Profile</a>
+            <a href="?page=logout">Logout</a>
+        </div>
+    </div>
+
+</div>
 """
 st.markdown(custom_header, unsafe_allow_html=True)
+
 
 # -------------------------------------------------------
 # SIDEBAR NAVIGATION
