@@ -1,212 +1,277 @@
 import streamlit as st
 
 # ------------------------------------------------------
-# MES HYBRID UI — SINGLE PAGE APP
-# LEFT SIDEBAR WITH COLLAPSIBLE MENUS (Option A)
-# NO NEW WINDOWS • NO URL ROUTING • NO TABS
+# CLEAN + STABLE HYBRID MES UI (ENTERPRISE + MODERN)
+# 100% FIXED — NO OVERLAPS, NO BROKEN LAYOUT
 # ------------------------------------------------------
 
-st.set_page_config(page_title="MES Hybrid UI", layout="wide")
+st.set_page_config(page_title="MES Hybrid UI", page_icon=":factory:", layout="wide")
 
-# ------------------------------------------------------
-# HIDE STREAMLIT DEFAULT CHROME
-# ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        #MainMenu {visibility: hidden;}
-        header {visibility: hidden;}
-        footer {visibility: hidden;}
-        [data-testid="stToolbar"] {display:none !important;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# -----------------------------
+# Hide Streamlit default chrome
+# -----------------------------
+HIDE = """
+<style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    [data-testid="stToolbar"] {display: none}
+</style>
+"""
+st.markdown(HIDE, unsafe_allow_html=True)
 
-# ------------------------------------------------------
-# SESSION STATE: current main + sub page
-# ------------------------------------------------------
-if "main" not in st.session_state:
-    st.session_state.main = "dashboard"
-if "sub" not in st.session_state:
-    st.session_state.sub = "overview"
+# -----------------------------
+# Routing
+# -----------------------------
+params = st.query_params
+page = params.get("page", "dashboard")
+sub  = params.get("sub", "")
 
-# Helper: change page
+# -----------------------------
+# Stable CSS (no f-strings inside)
+# -----------------------------
+CSS = """
+<style>
+:root{
+    --primary: #2c6bed;
+    --text: #1d1d1f;
+    --card-bg: #ffffff;
+    --sidebar: #f8faff;
+    --shadow: rgba(0,0,0,0.06);
+}
 
-def nav(main, sub):
-    st.session_state.main = main
-    st.session_state.sub = sub
+/* ---------------- HEADER ---------------- */
+.header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 72px;
+    background: white;
+    box-shadow: 0 4px 14px var(--shadow);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    z-index: 9999;
+}
+.header img {
+    border-radius: 8px;
+    margin-right: 14px;
+}
+.header-title{ font-size:22px; font-weight:800; color:var(--text); }
+.header-sub{ font-size:13px; color:#666; margin-top:-4px; }
+.header-links{ margin-left:auto; display:flex; gap:20px; }
+.header-links a{
+    text-decoration:none;
+    font-weight:700;
+    color:#111;
+    padding:6px 8px;
+    border-radius:6px;
+}
+.header-links a:hover{ background:#eef3ff; }
 
-# ------------------------------------------------------
-# FIXED HEADER
-# ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        .app-header {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 74px;
-            background: white;
-            display: flex;
-            align-items: center;
-            padding: 12px 26px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-            z-index: 9999;
-        }
-        .app-header-title { font-size: 22px; font-weight: 800; margin-left: 12px; }
-        .block-container { padding-top: 120px !important; margin-left: 260px !important; }
-    </style>
-    <div class="app-header">
-        <img src="https://placehold.co/56x56?text=Logo" style="border-radius:10px" />
-        <div class="app-header-title">MES Hybrid System</div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+/* --------------- TOP SUBMENU ---------------- */
+.submenu{
+    position: fixed;
+    top: 72px;
+    left: 260px; right: 0;
+    height: 48px;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:white;
+    border-bottom:1px solid #ececec;
+    padding-left:18px;
+    z-index:9998;
+}
+.submenu a{
+    text-decoration:none;
+    padding:8px 14px;
+    border-radius:6px;
+    font-weight:700;
+    color:#333;
+}
+.submenu .active{ background:var(--primary); color:white; }
 
-# ------------------------------------------------------
-# SIDEBAR (Collapsible Groups)
-# ------------------------------------------------------
-st.markdown(
-    """
-    <style>
-        .sidebar-container {
-            position: fixed;
-            top: 74px; left: 0; bottom: 0;
-            width: 260px;
-            background: #f7f9ff;
-            padding: 20px 14px;
-            overflow-y: auto;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.05);
-        }
-        .sidebar-title {
-            font-size: 18px; font-weight: 800; margin-bottom: 12px;
-        }
-        summary {
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            list-style: none;
-            font-weight: 700;
-            color:#222;
-        }
-        summary:hover { background:#e7edff; }
-        .item {
-            display:block;
-            padding: 8px 16px;
-            border-radius: 8px;
-            margin: 4px 0;
-            font-weight: 600;
-            color:#333;
-            text-decoration:none;
-        }
-        .item:hover { background:#dfe7ff; }
-        .active-main { background:#2c6bed; color:white !important; }
-        .active-sub { background:#155cd6; color:white !important; }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+/* --------------- SIDEBAR ---------------- */
+.sidebar{
+    position: fixed;
+    top: 72px; left: 0;
+    width: 260px; bottom: 0;
+    background: var(--sidebar);
+    padding: 20px 16px;
+    overflow-y:auto;
+    box-shadow: 2px 0 12px var(--shadow);
+    z-index: 9997;
+}
+.sidebar-title{
+    font-size:18px;
+    font-weight:800;
+    margin-bottom:12px;
+}
+.sidebar details{ margin-bottom:12px; }
+.sidebar summary{
+    padding:10px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+    color:#222;
+}
+.sidebar summary:hover{ background:#eef4ff; }
 
-# SIDEBAR HTML STRUCTURE
-with st.container():
-    st.markdown(
-        "<div class='sidebar-container'>",
-        unsafe_allow_html=True,
-    )
+.sidebar a{
+    display:block;
+    padding:8px 18px;
+    font-weight:600;
+    border-radius:8px;
+    margin:4px 0;
+    text-decoration:none;
+    color:#333;
+}
+.sidebar a:hover{ background:#e7edff; }
+.sidebar .active-main{ background:var(--primary); color:white !important; }
+.sidebar .sub-active{ background:#155cd6; color:white !important; }
 
-    st.markdown("<div class='sidebar-title'>Navigation</div>", unsafe_allow_html=True)
+/* --------------- MAIN CONTENT -------------- */
+.block-container{
+    margin-left: 280px !important;
+    padding-top: 140px !important;
+}
 
-    # ---------------- DASHBOARD ----------------
-    dash_open = "open" if st.session_state.main == "dashboard" else ""
-    dash_main = "active-main" if st.session_state.main == "dashboard" else ""
+/* --------------- FOOTER -------------- */
+.footer{
+    position: fixed;
+    bottom: 0; left: 280px; right: 0;
+    padding: 12px;
+    background:white;
+    text-align:center;
+    border-top:1px solid #ddd;
+    font-size:13px;
+    box-shadow:0 -2px 10px var(--shadow);
+}
+</style>
+"""
+st.markdown(CSS, unsafe_allow_html=True)
 
-    st.markdown(f"<details {dash_open}><summary class='{dash_main}'>📊 Dashboard</summary>", unsafe_allow_html=True)
+# -----------------------------
+# Header
+# -----------------------------
+HEADER = """
+<div class="header">
+  <img src="https://placehold.co/56x56?text=Logo" width="56" height="56" />
+  <div>
+    <div class="header-title">MES Hybrid Application</div>
+    <div class="header-sub">Hybrid — enterprise layout with modern styling</div>
+  </div>
+  <div class="header-links">
+    <a href="?page=dashboard">Dashboard</a>
+    <a href="?page=reports">Reports</a>
+    <a href="?page=settings">Settings</a>
+  </div>
+</div>
+"""
+st.markdown(HEADER, unsafe_allow_html=True)
 
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='overview' and st.session_state.main=='dashboard' else ''}' href='#' onclick=\"window.location.href='';\">Overview</a>",
-        unsafe_allow_html=True,
-    )
-    if st.session_state.sub == "overview" and st.session_state.main == "dashboard":
-        nav("dashboard", "overview")
+# -----------------------------
+# Submenu
+# -----------------------------
+sub_html = """
+<div class="submenu">
+  <a href="?page=dashboard&sub=overview" class="{D_OV}">Overview</a>
+  <a href="?page=dashboard&sub=stations" class="{D_ST}">Stations</a>
 
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='stations' and st.session_state.main=='dashboard' else ''}' href='#' onclick=\"window.location.href='';\">Stations</a>",
-        unsafe_allow_html=True,
-    )
-    if st.session_state.sub == "stations" and st.session_state.main == "dashboard":
-        nav("dashboard", "stations")
+  <a href="?page=reports&sub=daily" class="{R_D}">Daily</a>
+  <a href="?page=reports&sub=monthly" class="{R_M}">Monthly</a>
 
-    st.markdown("</details>", unsafe_allow_html=True)
+  <a href="?page=settings&sub=users" class="{S_U}">Users</a>
+  <a href="?page=settings&sub=system" class="{S_S}">System</a>
+</div>
+"""
 
-    # ---------------- REPORTS ----------------
-    rep_open = "open" if st.session_state.main == "reports" else ""
-    rep_main = "active-main" if st.session_state.main == "reports" else ""
+sub_html = sub_html.replace('{D_OV}', 'active' if page=='dashboard' and sub in ('overview','') else '')
+sub_html = sub_html.replace('{D_ST}', 'active' if page=='dashboard' and sub=='stations' else '')
+sub_html = sub_html.replace('{R_D}', 'active' if page=='reports' and sub=='daily' else '')
+sub_html = sub_html.replace('{R_M}', 'active' if page=='reports' and sub=='monthly' else '')
+sub_html = sub_html.replace('{S_U}', 'active' if page=='settings' and sub=='users' else '')
+sub_html = sub_html.replace('{S_S}', 'active' if page=='settings' and sub=='system' else '')
 
-    st.markdown(f"<details {rep_open}><summary class='{rep_main}'>📁 Reports</summary>", unsafe_allow_html=True)
+st.markdown(sub_html, unsafe_allow_html=True)
 
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='daily' and st.session_state.main=='reports' else ''}' href='#'>Daily</a>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='monthly' and st.session_state.main=='reports' else ''}' href='#'>Monthly</a>",
-        unsafe_allow_html=True,
-    )
+# -----------------------------
+# Sidebar
+# -----------------------------
+sidebar = """
+<div class="sidebar">
+  <div class="sidebar-title">Navigation</div>
 
-    st.markdown("</details>", unsafe_allow_html=True)
+  <details {D_OPEN}>
+    <summary class="{D_MAIN}">📊 Dashboard</summary>
+    <a href="?page=dashboard&sub=overview" class="{D_OV}">Overview</a>
+    <a href="?page=dashboard&sub=stations" class="{D_ST}">Stations</a>
+  </details>
 
-    # ---------------- SETTINGS ----------------
-    set_open = "open" if st.session_state.main == "settings" else ""
-    set_main = "active-main" if st.session_state.main == "settings" else ""
+  <details {R_OPEN}>
+    <summary class="{R_MAIN}">📁 Reports</summary>
+    <a href="?page=reports&sub=daily" class="{R_D}">Daily</a>
+    <a href="?page=reports&sub=monthly" class="{R_M}">Monthly</a>
+  </details>
 
-    st.markdown(f"<details {set_open}><summary class='{set_main}'>⚙ Settings</summary>", unsafe_allow_html=True)
+  <details {S_OPEN}>
+    <summary class="{S_MAIN}">⚙️ Settings</summary>
+    <a href="?page=settings&sub=users" class="{S_U}">Users</a>
+    <a href="?page=settings&sub=system" class="{S_S}">System</a>
+  </details>
+</div>
+"""
 
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='users' and st.session_state.main=='settings' else ''}' href='#'>Users</a>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        f"<a class='item {'active-sub' if st.session_state.sub=='system' and st.session_state.main=='settings' else ''}' href='#'>System</a>",
-        unsafe_allow_html=True,
-    )
+sidebar = sidebar.replace('{D_OPEN}', 'open' if page=='dashboard' else '')
+sidebar = sidebar.replace('{R_OPEN}', 'open' if page=='reports' else '')
+sidebar = sidebar.replace('{S_OPEN}', 'open' if page=='settings' else '')
 
-    st.markdown("</details>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+sidebar = sidebar.replace('{D_MAIN}', 'active-main' if page=='dashboard' else '')
+sidebar = sidebar.replace('{R_MAIN}', 'active-main' if page=='reports' else '')
+sidebar = sidebar.replace('{S_MAIN}', 'active-main' if page=='settings' else '')
 
-# ------------------------------------------------------
-# MAIN CONTENT AREA BASED ON SESSION STATE
-# ------------------------------------------------------
-main = st.session_state.main
-sub  = st.session_state.sub
+sidebar = sidebar.replace('{D_OV}', 'sub-active' if page=='dashboard' and sub in ('overview','') else '')
+sidebar = sidebar.replace('{D_ST}', 'sub-active' if page=='dashboard' and sub=='stations' else '')
+sidebar = sidebar.replace('{R_D}', 'sub-active' if page=='reports' and sub=='daily' else '')
+sidebar = sidebar.replace('{R_M}', 'sub-active' if page=='reports' and sub=='monthly' else '')
+sidebar = sidebar.replace('{S_U}', 'sub-active' if page=='settings' and sub=='users' else '')
+sidebar = sidebar.replace('{S_S}', 'sub-active' if page=='settings' and sub=='system' else '')
 
-st.title(main.capitalize() + " — " + sub.capitalize())
+st.markdown(sidebar, unsafe_allow_html=True)
 
-if main == "dashboard":
-    if sub == "overview":
-        st.header("Overview")
-        st.write("Production KPIs, throughput, OEE, etc.")
-    elif sub == "stations":
-        st.header("Stations")
-        st.write("Station status, cycle time, alarms.")
+# -----------------------------
+# MAIN CONTENT
+# -----------------------------
+title_text = page.capitalize() + (f" — {sub.capitalize()}" if sub else "")
+st.title(title_text)
 
-elif main == "reports":
-    if sub == "daily":
-        st.header("Daily Reports")
-        st.write("Daily production summary")
-    elif sub == "monthly":
-        st.header("Monthly Reports")
-        st.write("Monthly trends and analytics")
+if page == 'dashboard':
+    if sub in ('overview',''):
+        st.header('Overview')
+        st.write('Summary KPIs, throughput, OEE, etc.')
+    elif sub == 'stations':
+        st.header('Stations')
+        st.write('Station list, status, alarms, cycle times.')
 
-elif main == "settings":
-    if sub == "users":
-        st.header("User Management")
-        st.write("Add / remove users, edit roles.")
-    elif sub == "system":
-        st.header("System Settings")
-        st.write("PLC connections, MES configs.")
+elif page == 'reports':
+    if sub == 'daily':
+        st.header('Daily Reports')
+        st.write('Daily production, shift summary.')
+    elif sub == 'monthly':
+        st.header('Monthly Reports')
+        st.write('Monthly trends, paretos, scrap analysis.')
 
-# ------------------------------------------------------
+elif page == 'settings':
+    if sub == 'users':
+        st.header('User Management')
+        st.write('Create / edit users, roles, permissions.')
+    elif sub == 'system':
+        st.header('System Configuration')
+        st.write('Integrations, PLC connections, system params.')
+
+# -----------------------------
 # FOOTER
-# ------------------------------------------------------
+# -----------------------------
+st.markdown("""
+<div class='footer'>© 2025 MES Hybrid — Streamlit UI</div>
+""", unsafe_allow_html=True)
