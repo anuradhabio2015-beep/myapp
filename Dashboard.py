@@ -145,62 +145,32 @@ if st.session_state["dark"]:
 # Header HTML (renders top bar)
 # ---------------------------
 header_html = """
-<div class="custom-header">
-  <div class="header-left">
-    <img class="header-logo" src="https://via.placeholder.com/80" />
-    <div style="display:flex;flex-direction:column;">
-      <div class="header-title">MES Application</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.9);margin-top:2px;">Smart Factory Dashboard</div>
-    </div>
-  </div>
-
-  <div style="display:flex;align-items:center;gap:12px;">
-    <div class="header-icons">
-      <a class="icon-link" href="javascript:void(0)" onclick="(function(){ })()">🏠 Home</a>
-
-      <div class="dropdown">
-        <button class="dropdown-btn">📁 Reports ▼</button>
-        <div class="mega">
-          <div class="col">
-            <h4>Production</h4>
-            <a href="?page=daily">Daily</a>
-            <a href="?page=shift">Shift</a>
-            <a href="?page=order">Order trace</a>
-          </div>
-          <div class="col">
-            <h4>Quality</h4>
-            <a href="?page=quality">Inspection</a>
-            <a href="?page=nc">Non-conformance</a>
-            <a href="?page=metrology">Metrology</a>
-          </div>
-          <div class="col">
-            <h4>Maintenance</h4>
-            <a href="?page=pm">Preventive</a>
-            <a href="?page=cm">Corrective</a>
-            <a href="?page=spares">Spares</a>
-          </div>
+<div>
+    <div>
+        <div>
         </div>
-      </div>
-
-      <a class="icon-link" href="?page=settings">⚙️ Settings</a>
     </div>
+</div>
 
-    <div style="position:relative;">
-      <button class="icon-link" onclick="document.querySelector('#alerts').scrollIntoView();">🔔 Notifications</button>
-    </div>
+<a class="icon-link" href="?page=settings">⚙️ Settings</a>
 
-    <div class="profile-dropdown" style="margin-left:6px;">
-      <button class="dropdown-btn">👤 Rahul ▼</button>
-      <div class="profile-content">
-        <a href="?page=profile">Profile</a>
-        <a href="?page=logout">Logout</a>
-      </div>
-    </div>
+<div style="position:relative;">
+  <button class="icon-link" onclick="document.querySelector('#alerts').scrollIntoView();">
+    🔔 Notifications
+  </button>
+</div>
 
+<div class="profile-dropdown" style="margin-left:6px;">
+  <button class="dropdown-btn">👤 Rahul ▼</button>
+  <div class="profile-content">
+    <a href="?page=profile">Profile</a>
+    <a href="?page=logout">Logout</a>
   </div>
 </div>
 """
+
 st.markdown(header_html, unsafe_allow_html=True)
+
 
 
 # ---------------------------
