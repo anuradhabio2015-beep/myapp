@@ -13,30 +13,13 @@ hide_default = """
 st.markdown(hide_default, unsafe_allow_html=True)
 
 # -------------------------------------------------------
-# INIT SESSION STATE FOR ACTIVE PAGE
+# INITIALIZE SESSION STATE FOR ACTIVE PAGE
 # -------------------------------------------------------
 if "active_page" not in st.session_state:
     st.session_state.active_page = "dashboard"
 
 # -------------------------------------------------------
-# JAVASCRIPT FUNCTION TO UPDATE SESSION STATE
-# -------------------------------------------------------
-page_switch_js = """
-    <script>
-        function switchPage(page) {
-            const streamlitMessage = {
-                type: "streamlit:setComponentValue",
-                value: page
-            };
-            window.parent.postMessage(streamlitMessage, "*");
-        }
-    </script>
-"""
-
-st.markdown(page_switch_js, unsafe_allow_html=True)
-
-# -------------------------------------------------------
-# FIXED CUSTOM HEADER ONLY (NO INTERNAL TABS)
+# CUSTOM HEADER — CONTROLS PAGE SWITCHING
 # -------------------------------------------------------
 custom_header = f"""
     <style>
@@ -56,14 +39,14 @@ custom_header = f"""
             align-items: center;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
         }}
+
         .header-links a {{
             color: white;
             margin-left: 25px;
-            text-decoration: none;
             font-size: 16px;
-            cursor: pointer;
             font-weight: 500;
-            opacity: 0.65;
+            cursor: pointer;
+            opacity: 0.7;
         }}
 
         .header-links a.active {{
@@ -80,20 +63,24 @@ custom_header = f"""
         <div>MES Application</div>
         <div class="header-links">
             <a class="{ 'active' if st.session_state.active_page=='dashboard' else ''}"
-               onclick="streamlitSend('dashboard')">Dashboard</a>
+               onclick="switchPage('dashboard')">Dashboard</a>
 
             <a class="{ 'active' if st.session_state.active_page=='reports' else ''}"
-               onclick="streamlitSend('reports')">Reports</a>
+               onclick="switchPage('reports')">Reports</a>
 
             <a class="{ 'active' if st.session_state.active_page=='settings' else ''}"
-               onclick="streamlitSend('settings')">Settings</a>
+               onclick="switchPage('settings')">Settings</a>
         </div>
     </div>
 
     <script>
-        function streamlitSend(page) {{
+        function switchPage(pageName) {{
             window.parent.postMessage(
-                {{isStreamlitMessage: true, type: "streamlit:setComponentValue", value: page}},
+                {{
+                    isStreamlitMessage: true,
+                    type: "streamlit:setComponentValue",
+                    value: pageName
+                }},
                 "*"
             );
         }}
@@ -102,27 +89,28 @@ custom_header = f"""
 st.markdown(custom_header, unsafe_allow_html=True)
 
 # -------------------------------------------------------
-# LISTEN FOR HEADER CLICK EVENTS
+# CAPTURE HEADER CLICK EVENTS
 # -------------------------------------------------------
 event = st.experimental_get_query_params()
 if "_component_value" in event:
     st.session_state.active_page = event["_component_value"][0]
 
 # -------------------------------------------------------
-# MAIN CONTENT AREA (NO TABS)
+# PAGE CONTENT BASED ON HEADER TAB
 # -------------------------------------------------------
 if st.session_state.active_page == "dashboard":
     st.header("📊 Dashboard")
-    st.write("Production KPIs...")
-    st.write("Quality KPIs...")
+    tab1, tab2 = st.tabs(["Production", "Quality"])
+    tab1.write("Production KPIs…")
+    tab2.write("Quality KPIs…")
 
 elif st.session_state.active_page == "reports":
     st.header("📁 Reports")
-    st.write("Report listing...")
+    st.write("Report listing…")
 
 elif st.session_state.active_page == "settings":
     st.header("⚙️ Settings")
-    st.write("Settings page...")
+    st.write("System configuration…")
 
 # -------------------------------------------------------
 # CUSTOM FOOTER
