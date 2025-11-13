@@ -1,292 +1,132 @@
 import streamlit as st
 
 # ------------------------------------------------------
-# CLEAN + STABLE HYBRID MES UI (ENTERPRISE + MODERN)
-# 100% FIXED — NO OVERLAPS, NO BROKEN LAYOUT
+# OPTION A — TRUE TAB NAVIGATION (NO URL ROUTING)
+# Clean, stable, modern MES UI using Streamlit Tabs
 # ------------------------------------------------------
 
-st.set_page_config(page_title="MES Hybrid UI", page_icon=":factory:", layout="wide")
+st.set_page_config(page_title="MES Hybrid Tabs UI", page_icon=":factory:", layout="wide")
 
-# -----------------------------
-# Hide Streamlit default chrome
-# -----------------------------
-HIDE = """
-<style>
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    [data-testid="stToolbar"] {display: none}
-</style>
-"""
-st.markdown(HIDE, unsafe_allow_html=True)
+# ------------------------------------------------------
+# HIDE STREAMLIT DEFAULT CHROME
+# ------------------------------------------------------
+st.markdown(
+    """
+    <style>
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
+        [data-testid="stToolbar"] {display:none !important;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-# -----------------------------
-# Routing
-# -----------------------------
-params = st.query_params
-page = params.get("page", "dashboard")
-sub  = params.get("sub", "")
+# ------------------------------------------------------
+# CUSTOM CLEAN HEADER
+# ------------------------------------------------------
+st.markdown(
+    """
+    <style>
+        .app-header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 78px;
+            background: white;
+            display: flex;
+            align-items: center;
+            padding: 12px 26px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+            z-index: 9999;
+        }
+        .app-header-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-left: 12px;
+        }
+        .block-container {
+            padding-top: 120px !important;
+        }
+    </style>
+    <div class="app-header">
+        <img src="https://placehold.co/60x60?text=Logo" style="border-radius:10px" />
+        <div class="app-header-title">MES Hybrid System — TAB Mode</div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-# -----------------------------
-# Stable CSS (no f-strings inside)
-# -----------------------------
-CSS = """
-<style>
-:root{
-    --primary: #2c6bed;
-    --text: #1d1d1f;
-    --card-bg: #ffffff;
-    --sidebar: #f8faff;
-    --shadow: rgba(0,0,0,0.06);
-}
+# ------------------------------------------------------
+# TOP-LEVEL TABS (Dashboard | Reports | Settings)
+# ------------------------------------------------------
+main_tabs = st.tabs(["Dashboard", "Reports", "Settings"])
 
-/* ---------------- HEADER ---------------- */
-.header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 72px;
-    background: white;
-    box-shadow: 0 4px 14px var(--shadow);
-    display: flex;
-    align-items: center;
-    padding: 0 24px;
-    z-index: 9999;
-}
-.header img {
-    border-radius: 8px;
-    margin-right: 14px;
-}
-.header-title{ font-size:22px; font-weight:800; color:var(--text); }
-.header-sub{ font-size:13px; color:#666; margin-top:-4px; }
-.header-links{ margin-left:auto; display:flex; gap:20px; }
-.header-links a{
-    text-decoration:none;
-    font-weight:700;
-    color:#111;
-    padding:6px 8px;
-    border-radius:6px;
-}
-.header-links a:hover{ background:#eef3ff; }
+# ------------------------------------------------------
+# DASHBOARD PAGE
+# ------------------------------------------------------
+with main_tabs[0]:
+    st.subheader("Dashboard Section")
 
-/* --------------- TOP SUBMENU ---------------- */
-.submenu{
-    position: fixed;
-    top: 72px;
-    left: 260px; right: 0;
-    height: 48px;
-    display:flex;
-    align-items:center;
-    gap:14px;
-    background:white;
-    border-bottom:1px solid #ececec;
-    padding-left:18px;
-    z-index:9998;
-}
-.submenu a{
-    text-decoration:none;
-    padding:8px 14px;
-    border-radius:6px;
-    font-weight:700;
-    color:#333;
-}
-.submenu .active{ background:var(--primary); color:white; }
+    sub_tabs = st.tabs(["Overview", "Stations"])
 
-/* --------------- SIDEBAR ---------------- */
-.sidebar{
-    position: fixed;
-    top: 72px; left: 0;
-    width: 260px; bottom: 0;
-    background: var(--sidebar);
-    padding: 20px 16px;
-    overflow-y:auto;
-    box-shadow: 2px 0 12px var(--shadow);
-    z-index: 9997;
-}
-.sidebar-title{
-    font-size:18px;
-    font-weight:800;
-    margin-bottom:12px;
-}
-.sidebar details{ margin-bottom:12px; }
-.sidebar summary{
-    padding:10px 12px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:700;
-    color:#222;
-}
-.sidebar summary:hover{ background:#eef4ff; }
+    with sub_tabs[0]:
+        st.header("Overview")
+        st.write("Summary KPIs, throughput, OEE, etc.")
 
-.sidebar a{
-    display:block;
-    padding:8px 18px;
-    font-weight:600;
-    border-radius:8px;
-    margin:4px 0;
-    text-decoration:none;
-    color:#333;
-}
-.sidebar a:hover{ background:#e7edff; }
-.sidebar .active-main{ background:var(--primary); color:white !important; }
-.sidebar .sub-active{ background:#155cd6; color:white !important; }
+    with sub_tabs[1]:
+        st.header("Stations")
+        st.write("Station list, status, alarms, cycle times.")
 
-/* --------------- MAIN CONTENT -------------- */
-.block-container{
-    margin-left: 280px !important;
-    padding-top: 140px !important;
-}
+# ------------------------------------------------------
+# REPORTS PAGE
+# ------------------------------------------------------
+with main_tabs[1]:
+    st.subheader("Reports Section")
 
-/* --------------- FOOTER -------------- */
-.footer{
-    position: fixed;
-    bottom: 0; left: 280px; right: 0;
-    padding: 12px;
-    background:white;
-    text-align:center;
-    border-top:1px solid #ddd;
-    font-size:13px;
-    box-shadow:0 -2px 10px var(--shadow);
-}
-</style>
-"""
-# JS Router
-NAV_JS = """
-<script>
-function nav(page, sub){
-    const url = new URL(window.location.href);
-    url.searchParams.set('page', page);
-    if(sub){ url.searchParams.set('sub', sub); }
-    else{ url.searchParams.delete('sub'); }
-    window.location.href = url.toString();
-    return false;
-}
-</script>
-"""
-st.markdown(NAV_JS, unsafe_allow_html=True)
+    sub_tabs = st.tabs(["Daily", "Monthly"])
 
-st.markdown(CSS, unsafe_allow_html=True)
+    with sub_tabs[0]:
+        st.header("Daily Reports")
+        st.write("Daily production, shift summary.")
 
-# -----------------------------
-# Header
-# -----------------------------
-HEADER = """
-<div class="header">
-  <img src="https://placehold.co/56x56?text=Logo" width="56" height="56" />
-  <div>
-    <div class="header-title">MES Hybrid Application</div>
-    <div class="header-sub">Hybrid — enterprise layout with modern styling</div>
-  </div>
-  <div class="header-links">
-    <a href="#" onclick="return nav(=dashboard">Dashboard</a>
-    <a href="#" onclick="return nav(=reports">Reports</a>
-    <a href="#" onclick="return nav(=settings">Settings</a>
-  </div>
-</div>
-"""
-st.markdown(HEADER, unsafe_allow_html=True)
+    with sub_tabs[1]:
+        st.header("Monthly Reports")
+        st.write("Monthly trends, paretos, scrap analysis.")
 
-# -----------------------------
-# Submenu
-# -----------------------------
-sub_html = """
-<div class="submenu">
-  <a href="#" onclick="return nav(=dashboard&sub=overview" class="{D_OV}">Overview</a>
-  <a href="#" onclick="return nav(=dashboard&sub=stations" class="{D_ST}">Stations</a>
+# ------------------------------------------------------
+# SETTINGS PAGE
+# ------------------------------------------------------
+with main_tabs[2]:
+    st.subheader("Settings Section")
 
-  <a href="#" onclick="return nav(=reports&sub=daily" class="{R_D}">Daily</a>
-  <a href="#" onclick="return nav(=reports&sub=monthly" class="{R_M}">Monthly</a>
+    sub_tabs = st.tabs(["Users", "System Config"])
 
-  <a href="#" onclick="return nav(=settings&sub=users" class="{S_U}">Users</a>
-  <a href="#" onclick="return nav(=settings&sub=system" class="{S_S}">System</a>
-</div>
-"""
+    with sub_tabs[0]:
+        st.header("User Management")
+        st.write("Create / edit users, roles, permissions.")
 
-sub_html = sub_html.replace('{D_OV}', 'active' if page=='dashboard' and sub in ('overview','') else '')
-sub_html = sub_html.replace('{D_ST}', 'active' if page=='dashboard' and sub=='stations' else '')
-sub_html = sub_html.replace('{R_D}', 'active' if page=='reports' and sub=='daily' else '')
-sub_html = sub_html.replace('{R_M}', 'active' if page=='reports' and sub=='monthly' else '')
-sub_html = sub_html.replace('{S_U}', 'active' if page=='settings' and sub=='users' else '')
-sub_html = sub_html.replace('{S_S}', 'active' if page=='settings' and sub=='system' else '')
+    with sub_tabs[1]:
+        st.header("System Configuration")
+        st.write("Integrations, PLC connections, system params.")
 
-st.markdown(sub_html, unsafe_allow_html=True)
-
-# -----------------------------
-# Sidebar
-# -----------------------------
-sidebar = """
-<div class="sidebar">
-  <div class="sidebar-title">Navigation</div>
-
-  <details {D_OPEN}>
-    <summary class="{D_MAIN}">📊 Dashboard</summary>
-    <a href="#" onclick="return nav(=dashboard&sub=overview" class="{D_OV}">Overview</a>
-    <a href="#" onclick="return nav(=dashboard&sub=stations" class="{D_ST}">Stations</a>
-  </details>
-
-  <details {R_OPEN}>
-    <summary class="{R_MAIN}">📁 Reports</summary>
-    <a href="#" onclick="return nav(=reports&sub=daily" class="{R_D}">Daily</a>
-    <a href="#" onclick="return nav(=reports&sub=monthly" class="{R_M}">Monthly</a>
-  </details>
-
-  <details {S_OPEN}>
-    <summary class="{S_MAIN}">⚙️ Settings</summary>
-    <a href="#" onclick="return nav(=settings&sub=users" class="{S_U}">Users</a>
-    <a href="#" onclick="return nav(=settings&sub=system" class="{S_S}">System</a>
-  </details>
-</div>
-"""
-
-sidebar = sidebar.replace('{D_OPEN}', 'open' if page=='dashboard' else '')
-sidebar = sidebar.replace('{R_OPEN}', 'open' if page=='reports' else '')
-sidebar = sidebar.replace('{S_OPEN}', 'open' if page=='settings' else '')
-
-sidebar = sidebar.replace('{D_MAIN}', 'active-main' if page=='dashboard' else '')
-sidebar = sidebar.replace('{R_MAIN}', 'active-main' if page=='reports' else '')
-sidebar = sidebar.replace('{S_MAIN}', 'active-main' if page=='settings' else '')
-
-sidebar = sidebar.replace('{D_OV}', 'sub-active' if page=='dashboard' and sub in ('overview','') else '')
-sidebar = sidebar.replace('{D_ST}', 'sub-active' if page=='dashboard' and sub=='stations' else '')
-sidebar = sidebar.replace('{R_D}', 'sub-active' if page=='reports' and sub=='daily' else '')
-sidebar = sidebar.replace('{R_M}', 'sub-active' if page=='reports' and sub=='monthly' else '')
-sidebar = sidebar.replace('{S_U}', 'sub-active' if page=='settings' and sub=='users' else '')
-sidebar = sidebar.replace('{S_S}', 'sub-active' if page=='settings' and sub=='system' else '')
-
-st.markdown(sidebar, unsafe_allow_html=True)
-
-# -----------------------------
-# MAIN CONTENT
-# -----------------------------
-title_text = page.capitalize() + (f" — {sub.capitalize()}" if sub else "")
-st.title(title_text)
-
-if page == 'dashboard':
-    if sub in ('overview',''):
-        st.header('Overview')
-        st.write('Summary KPIs, throughput, OEE, etc.')
-    elif sub == 'stations':
-        st.header('Stations')
-        st.write('Station list, status, alarms, cycle times.')
-
-elif page == 'reports':
-    if sub == 'daily':
-        st.header('Daily Reports')
-        st.write('Daily production, shift summary.')
-    elif sub == 'monthly':
-        st.header('Monthly Reports')
-        st.write('Monthly trends, paretos, scrap analysis.')
-
-elif page == 'settings':
-    if sub == 'users':
-        st.header('User Management')
-        st.write('Create / edit users, roles, permissions.')
-    elif sub == 'system':
-        st.header('System Configuration')
-        st.write('Integrations, PLC connections, system params.')
-
-# -----------------------------
+# ------------------------------------------------------
 # FOOTER
-# -----------------------------
-st.markdown("""
-<div class='footer'>© 2025 MES Hybrid — Streamlit UI</div>
-""", unsafe_allow_html=True)
+# ------------------------------------------------------
+st.markdown(
+    """
+    <style>
+        .footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            padding: 10px;
+            text-align:center;
+            border-top:1px solid #ddd;
+            font-size:13px;
+            box-shadow:0 -2px 12px rgba(0,0,0,0.05);
+        }
+    </style>
+    <div class='footer'>© 2025 MES Hybrid Tabs — Streamlit UI</div>
+    """,
+    unsafe_allow_html=True,
+)
