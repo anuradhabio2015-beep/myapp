@@ -12,20 +12,30 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
+# -------------------------------------------------------
+# SESSION STATE FOR ACTIVE PAGE
+# -------------------------------------------------------
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "dashboard"
 
 # -------------------------------------------------------
-# READ ACTIVE PAGE FROM st.query_params  (NEW API)
+# CLICK HANDLERS — THESE SWITCH TABS WITHOUT RELOAD
 # -------------------------------------------------------
-params = st.query_params
-active_page = params.get("page", "dashboard")
+def go_dashboard():
+    st.session_state.active_page = "dashboard"
 
+def go_reports():
+    st.session_state.active_page = "reports"
+
+def go_settings():
+    st.session_state.active_page = "settings"
 
 # -------------------------------------------------------
-# CUSTOM HEADER WITH PURE LINK NAVIGATION
+# CUSTOM HEADER (BUTTONS — SAME PAGE)
 # -------------------------------------------------------
-custom_header = f"""
+custom_header = """
     <style>
-        .custom-header {{
+        .custom-header {
             position: fixed;
             top: 0;
             left: 0;
@@ -40,56 +50,74 @@ custom_header = f"""
             justify-content: space-between;
             align-items: center;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
-        }}
-        .header-links a {{
+        }
+        .header-links button {
+            background: none;
+            border: none;
             color: white;
             margin-left: 25px;
             font-size: 16px;
-            font-weight: 500;
-            text-decoration: none;
-            opacity: 0.6;
-        }}
-        .header-links a.active {{
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .header-links button.active {
             opacity: 1;
             text-decoration: underline;
-        }}
-        .block-container {{
+        }
+        .block-container {
             padding-top: 90px !important;
-        }}
+        }
     </style>
-
-    <div class="custom-header">
-        <div>MES Application</div>
-        <div class="header-links">
-            <a href="?page=dashboard" class="{ 'active' if active_page=='dashboard' else ''}">Dashboard</a>
-            <a href="?page=reports" class="{ 'active' if active_page=='reports' else ''}">Reports</a>
-            <a href="?page=settings" class="{ 'active' if active_page=='settings' else ''}">Settings</a>
-        </div>
-    </div>
 """
 st.markdown(custom_header, unsafe_allow_html=True)
 
+# Header layout
+col1, col2 = st.columns([1, 1])
+with col1:
+    st.markdown(
+        "<div class='custom-header'>MES Application</div>",
+        unsafe_allow_html=True
+    )
+
+with col2:
+    st.write("")  # spacing
+    st.write("")  # spacing
+    st.write("")
+
+# Render header menu using columns (stays on same page)
+header_col1, header_col2, header_col3 = st.columns(3)
+
+with header_col1:
+    if st.button("Dashboard", key="dash_btn"):
+        go_dashboard()
+
+with header_col2:
+    if st.button("Reports", key="rep_btn"):
+        go_reports()
+
+with header_col3:
+    if st.button("Settings", key="set_btn"):
+        go_settings()
 
 # -------------------------------------------------------
-# PAGE CONTENT
+# PAGE CONTENT BASED ON session_state
 # -------------------------------------------------------
-if active_page == "dashboard":
+if st.session_state.active_page == "dashboard":
     st.header("📊 Dashboard")
     t1, t2 = st.tabs(["Production", "Quality"])
     t1.write("Production KPIs…")
     t2.write("Quality KPIs…")
 
-elif active_page == "reports":
+elif st.session_state.active_page == "reports":
     st.header("📁 Reports")
     st.write("Report listing…")
 
-elif active_page == "settings":
+elif st.session_state.active_page == "settings":
     st.header("⚙️ Settings")
-    st.write("System configuration…")
-
+    st.write("Settings configuration…")
 
 # -------------------------------------------------------
-# CUSTOM FOOTER
+# FOOTER
 # -------------------------------------------------------
 custom_footer = """
     <style>
