@@ -13,32 +13,53 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # -------------------------------------------------------------
-# CUSTOM HEADER WITH MENU
+# FIXED CUSTOM HEADER (Same style & structure as footer)
 # -------------------------------------------------------------
 custom_header = """
-  <style>
-        .custom-footer {
+    <style>
+        .custom-header {
             position: fixed;
+            top: 0;
             left: 0;
-            bottom: 0;
             width: 100%;
             background-color: #2c6bed;
             color: white;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
+            padding: 12px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            z-index: 9999;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .custom-header a {
+            color: white;
+            margin-left: 20px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .custom-header a:hover {
+            text-decoration: underline;
+        }
+
+        /* Push Streamlit content below fixed header */
+        .block-container {
+            padding-top: 90px !important;
         }
     </style>
-    # <div class="custom-header">
-    #     <div class="custom-header-title">MES Application</div>
-    #     <div class="header-menu">
-    #         <a href="?page=dashboard">Dashboard</a>
-    #         <a href="?page=reports">Reports</a>
-    #         <a href="?page=settings">Settings</a>
-    #     </div>
-    # </div>
-    <div class="custom-footer">
-        © 2025 MES System | Powered by Python + Streamlit
+
+    <div class="custom-header">
+        <div>MES Application</div>
+        <div>
+            <a href="?page=dashboard">Dashboard</a>
+            <a href="?page=reports">Reports</a>
+            <a href="?page=settings">Settings</a>
+        </div>
     </div>
 """
 
