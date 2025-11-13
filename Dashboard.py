@@ -5,19 +5,18 @@ st.set_page_config(page_title="MES App", layout="wide")
 # ---------------------------------------------------------
 # REMOVE DEFAULT STREAMLIT HEADER
 # ---------------------------------------------------------
-hide_st_header = """
+st.markdown("""
 <style>
 #MainMenu {visibility: hidden;}
 header {visibility: hidden;}
 footer {visibility: hidden;}
 </style>
-"""
-st.markdown(hide_st_header, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # CUSTOM HEADER CSS
 # ---------------------------------------------------------
-header_css = """
+st.markdown("""
 <style>
 
 .custom-header {
@@ -37,7 +36,6 @@ header_css = """
 }
 
 /* LEFT SECTION */
-
 .header-left {
     display: flex;
     align-items: center;
@@ -57,7 +55,6 @@ header_css = """
 }
 
 /* CENTER ICON LINKS */
-
 .header-icons {
     display: flex;
     align-items: center;
@@ -76,7 +73,6 @@ header_css = """
 }
 
 /* DROPDOWN MENU */
-
 .dropdown {
     position: relative;
     display: inline-block;
@@ -120,11 +116,6 @@ header_css = """
     display: block;
 }
 
-/* PUSH STREAMLIT CONTENT DOWN */
-.block-container {
-    padding-top: 110px !important;
-}
-
 /* PROFILE DROPDOWN */
 .profile-dropdown {
     position: relative;
@@ -158,14 +149,18 @@ header_css = """
     display: block;
 }
 
+/* PUSH PAGE DOWN */
+.block-container {
+    padding-top: 110px !important;
+}
+
 </style>
-"""
-st.markdown(header_css, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # CUSTOM HEADER HTML
 # ---------------------------------------------------------
-header_html = """
+st.markdown("""
 <div class="custom-header">
 
     <!-- LEFT SECTION -->
@@ -176,7 +171,6 @@ header_html = """
 
     <!-- CENTER NAVIGATION -->
     <div class="header-icons">
-
         <a class="icon-link" href="?page=dashboard">🏠 Home</a>
 
         <div class="dropdown">
@@ -189,13 +183,11 @@ header_html = """
         </div>
 
         <a class="icon-link" href="?page=settings">⚙️ Settings</a>
-
     </div>
 
     <!-- NOTIFICATION BELL -->
     <div style="position:relative;">
-        <button class="icon-link"
-                onclick="document.querySelector('#alerts').scrollIntoView();">
+        <button class="icon-link" onclick="document.querySelector('#alerts').scrollIntoView();">
             🔔 Notifications
         </button>
     </div>
@@ -210,14 +202,13 @@ header_html = """
     </div>
 
 </div>
-"""
-st.markdown(header_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # PAGE ROUTER
 # ---------------------------------------------------------
-query = st.experimental_get_query_params()
-page = query.get("page", ["dashboard"])[0]
+params = st.experimental_get_query_params()
+page = params.get("page", ["dashboard"])[0]
 
 # ---------------------------------------------------------
 # PAGE CONTENT
@@ -244,23 +235,21 @@ elif page == "settings":
 
 elif page == "profile":
     st.header("👤 Profile")
-    st.write("User profile details here...")
+    st.write("User profile details...")
 
 elif page == "logout":
     st.warning("You have been logged out.")
 
-
 # ---------------------------------------------------------
-# ALERT SECTION (for bell button)
+# ALERT SECTION
 # ---------------------------------------------------------
-st.markdown("""<h3 id="alerts">🔔 Notifications</h3>""", unsafe_allow_html=True)
+st.markdown("<h3 id='alerts'>🔔 Notifications</h3>", unsafe_allow_html=True)
 st.info("No notifications yet.")
-
 
 # ---------------------------------------------------------
 # FOOTER
 # ---------------------------------------------------------
-footer_html = """
+st.markdown("""
 <br><br><br>
 <div style="
     position:fixed;
@@ -274,5 +263,4 @@ footer_html = """
     font-size:14px;">
     © 2025 MES System | Powered by Python + Streamlit
 </div>
-"""
-st.markdown(footer_html, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
