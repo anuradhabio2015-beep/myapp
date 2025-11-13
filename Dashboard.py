@@ -16,34 +16,19 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 # CUSTOM HEADER WITH MENU
 # -------------------------------------------------------------
 custom_header = """
-    <style>
-        .custom-header {
-            background-color: #2c6bed;
-            padding: 15px 20px;
-            border-radius: 6px;
-            display: flex;
+  <style>
+        .custom-footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
             width: 100%;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .custom-header-title {
+            background-color: #2c6bed;
             color: white;
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0;
-        }
-        .header-menu a {
-            margin-left: 22px;
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 500;
-        }
-        .header-menu a:hover {
-            text-decoration: underline;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
         }
     </style>
-
     <div class="custom-header">
         <div class="custom-header-title">MES Application</div>
         <div class="header-menu">
