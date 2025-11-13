@@ -22,6 +22,7 @@ custom_header = """
             padding: 15px 20px;
             border-radius: 6px;
             display: flex;
+            width: 100%;
             justify-content: space-between;
             align-items: center;
         }
