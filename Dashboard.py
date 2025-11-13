@@ -14,296 +14,136 @@ st.markdown(hide_default, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# ROUTING: page & sub
+# FIXED TOP HEADER (FULL WIDTH)
 # -------------------------------------------------------
-params = st.query_params
-page = params.get("page", "dashboard")
-sub  = params.get("sub", "")  # can be empty string when not set
-
-
-# -------------------------------------------------------
-# TOP HEADER + HORIZONTAL SUB-MENU (below header)
-# -------------------------------------------------------
-top_header = f"""
+top_header = """
     <style>
-        /* top header */
-        .top-header {{
+        .top-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 64px;
+            height: 58px;
             background-color: #2c6bed;
             color: white;
-            padding: 12px 20px;
-            font-size: 20px;
+            padding: 14px 25px;
+            font-size: 21px;
             font-weight: 700;
-            z-index: 9999;
+            z-index: 10000;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
-        }}
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+        }
 
-        /* horizontal sub menu below header */
-        .top-submenu {{
-            position: fixed;
-            top: 64px;
-            left: 230px;             /* same as left sidebar width */
-            right: 0;
-            height: 44px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.98), rgba(250,250,250,0.98));
-            display: flex;
-            align-items: center;
-            padding-left: 18px;
-            gap: 14px;
-            border-bottom: 1px solid #ececec;
-            z-index: 9997;
-        }}
-
-        .top-submenu a {{
-            text-decoration: none;
-            color: #444;
-            font-weight: 600;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-        }}
-
-        .top-submenu a:hover {{
-            background: #eef4ff;
-            color: #0b3ea6;
-        }}
-
-        .top-submenu .active {{
-            background: #2c6bed;
-            color: white !important;
-        }}
-
-        /* push main Streamlit content below header + submenu and right of sidebar */
-        .block-container {{
-            padding-top: 120px !important; /* header (64) + submenu (44) + gap */
-            margin-left: 230px !important;  /* width of left sidebar */
-            margin-right: 20px !important;
-        }}
+        /* Push Streamlit layout down + right */
+        .block-container {
+            padding-top: 80px !important;
+            margin-left: 240px !important;  
+            max-width: 100% !important;
+        }
     </style>
 
     <div class="top-header">
         <div>MES Application</div>
-        <div style="margin-right: 30px; font-weight: 600;">
-            <a style="color:white; text-decoration:none;" href="?page=dashboard">Dashboard</a>
+        <div style="margin-right: 30px; font-weight: 500; font-size: 16px;">
+            Dashboard | Reports | Settings
         </div>
-    </div>
-
-    <div class="top-submenu">
-        <!-- dashboard subs -->
-        <a class="{('active' if (page=='dashboard' and sub in ['overview','stations',''] ) else '')}" href="?page=dashboard&sub=overview">Overview</a>
-        <a class="{('active' if (page=='dashboard' and sub=='stations') else '')}" href="?page=dashboard&sub=stations">Stations</a>
-
-        <!-- reports subs -->
-        <a class="{('active' if (page=='reports' and sub=='daily') else '')}" href="?page=reports&sub=daily">Daily</a>
-        <a class="{('active' if (page=='reports' and sub=='monthly') else '')}" href="?page=reports&sub=monthly">Monthly</a>
-
-        <!-- settings subs -->
-        <a class="{('active' if (page=='settings' and sub=='users') else '')}" href="?page=settings&sub=users">Users</a>
-        <a class="{('active' if (page=='settings' and sub=='system') else '')}" href="?page=settings&sub=system">System</a>
     </div>
 """
 st.markdown(top_header, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# LEFT SIDEBAR with collapsible sub-menus (DETAILS/SUMMARY)
+# PAGE ROUTING (USING NEW API)
 # -------------------------------------------------------
-# compute active classes for main and sub items
-dash_active = "active" if page == "dashboard" else ""
-rep_active  = "active" if page == "reports" else ""
-set_active  = "active" if page == "settings" else ""
+params = st.query_params
+page = params.get("page", "dashboard")
 
-dash_sub_overview = "sub-active" if (page=="dashboard" and sub in ["overview",""]) else ""
-dash_sub_stations = "sub-active" if (page=="dashboard" and sub=="stations") else ""
+DASH = "active" if page == "dashboard" else ""
+REPO = "active" if page == "reports" else ""
+SETT = "active" if page == "settings" else ""
 
-rep_sub_daily  = "sub-active" if (page=="reports" and sub=="daily") else ""
-rep_sub_monthly= "sub-active" if (page=="reports" and sub=="monthly") else ""
 
-set_sub_users  = "sub-active" if (page=="settings" and sub=="users") else ""
-set_sub_system = "sub-active" if (page=="settings" and sub=="system") else ""
-
-left_menu = f"""
+# -------------------------------------------------------
+# FULL HEIGHT LEFT NAVIGATION PANEL
+# -------------------------------------------------------
+left_nav = f"""
     <style>
-        .left-menu {{
+        .left-nav {{
             position: fixed;
-            top: 0;
+            top: 58px;
             left: 0;
-            width: 230px;
-            height: 100%;
-            background-color: #f8fbff;
-            padding-top: 12px;
-            box-shadow: 2px 0px 6px rgba(0,0,0,0.06);
-            z-index: 9998;
-            overflow: auto;
+            width: 240px;
+            height: calc(100% - 58px);
+            background-color: #eef2ff;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 9999;
         }}
 
-        .left-menu .brand {{
-            padding: 14px 18px;
-            font-weight: 800;
-            color: #2c6bed;
-            font-size: 18px;
-        }}
-
-        .menu-link {{
-            display:block;
-            padding: 12px 18px;
-            color: #1d1d1d;
+        .menu-item {{
+            padding: 14px 25px;
+            font-size: 17px;
+            color: #1a1a1a;
+            display: block;
             text-decoration: none;
-            font-weight: 600;
-            border-radius: 6px;
-            margin: 6px 10px;
+            font-weight: 500;
         }}
 
-        .menu-link:hover {{
-            background: #eaf0ff;
-            color: #0e47b7;
+        .menu-item:hover {{
+            background-color: #d6dfff;
         }}
 
         .active {{
-            background: #2c6bed !important;
+            background-color: #2c6bed !important;
             color: white !important;
         }}
-
-        /* details (collapsible) styling */
-        details {{
-            margin: 6px 10px;
-            padding: 6px 6px;
-            border-radius: 6px;
-        }}
-
-        summary {{
-            list-style: none;
-            outline: none;
-            padding: 10px 12px;
-            font-weight: 700;
-            cursor: pointer;
-            color: #1a1a1a;
-            border-radius: 6px;
-        }}
-
-        summary:hover {{
-            background: #eef4ff;
-        }}
-
-        /* sub-items */
-        .sub-item {{
-            display:block;
-            padding: 8px 24px;
-            font-weight: 600;
-            text-decoration: none;
-            color: #222;
-            margin: 4px 8px;
-            border-radius: 6px;
-        }}
-
-        .sub-item:hover {{
-            background: #eef4ff;
-            color: #0b3ea6;
-        }}
-
-        .sub-active {{
-            background: #1f66d6 !important;
-            color: white !important;
-        }
     </style>
 
-    <div class="left-menu">
-        <div class="brand">MES Application</div>
-
-        <!-- Dashboard group -->
-        <details open>
-            <summary class="menu-link {'active' if dash_active else ''}">📊 Dashboard</summary>
-            <a class="sub-item {dash_sub_overview}" href="?page=dashboard&sub=overview">Overview</a>
-            <a class="sub-item {dash_sub_stations}" href="?page=dashboard&sub=stations">Stations</a>
-        </details>
-
-        <!-- Reports group -->
-        <details>
-            <summary class="menu-link {'active' if rep_active else ''}">📁 Reports</summary>
-            <a class="sub-item {rep_sub_daily}" href="?page=reports&sub=daily">Daily</a>
-            <a class="sub-item {rep_sub_monthly}" href="?page=reports&sub=monthly">Monthly</a>
-        </details>
-
-        <!-- Settings group -->
-        <details>
-            <summary class="menu-link {'active' if set_active else ''}">⚙️ Settings</summary>
-            <a class="sub-item {set_sub_users}" href="?page=settings&sub=users">Users</a>
-            <a class="sub-item {set_sub_system}" href="?page=settings&sub=system">System</a>
-        </details>
+    <div class="left-nav">
+        <a class="menu-item {DASH}" href="?page=dashboard">📊 Dashboard</a>
+        <a class="menu-item {REPO}" href="?page=reports">📁 Reports</a>
+        <a class="menu-item {SETT}" href="?page=settings">⚙️ Settings</a>
     </div>
 """
-st.markdown(left_menu, unsafe_allow_html=True)
+st.markdown(left_nav, unsafe_allow_html=True)
 
 
 # -------------------------------------------------------
-# MAIN CONTENT AREA (right side) — show based on page & sub
+# MAIN PAGE CONTENT (RIGHT SIDE)
 # -------------------------------------------------------
-def show_dashboard(subpage):
-    st.header("📊 Dashboard")
-    if subpage in ["overview", ""]:
-        st.subheader("Overview")
-        st.write("Summary KPIs, throughput, OEE, etc.")
-    elif subpage == "stations":
-        st.subheader("Stations")
-        st.write("Station list, status, alarms, cycle times.")
-
-def show_reports(subpage):
-    st.header("📁 Reports")
-    if subpage == "daily":
-        st.subheader("Daily Reports")
-        st.write("Daily production, shift summary.")
-    elif subpage == "monthly":
-        st.subheader("Monthly Reports")
-        st.write("Monthly trends, paretos, scrap analysis.")
-    else:
-        st.write("Select a report from the submenu.")
-
-def show_settings(subpage):
-    st.header("⚙️ Settings")
-    if subpage == "users":
-        st.subheader("User Management")
-        st.write("Create / edit users, roles, permissions.")
-    elif subpage == "system":
-        st.subheader("System Configuration")
-        st.write("Integrations, PLC connections, system params.")
-    else:
-        st.write("Select a settings option from the submenu.")
-
-
 if page == "dashboard":
-    show_dashboard(sub)
+    st.header("📊 Dashboard")
+    tab1, tab2 = st.tabs(["Production", "Quality"])
+    tab1.write("Production KPIs…")
+    tab2.write("Quality KPIs…")
+
 elif page == "reports":
-    show_reports(sub)
+    st.header("📁 Reports")
+    st.write("Report listing…")
+
 elif page == "settings":
-    show_settings(sub)
-else:
-    st.write("Page not found — use the left menu.")
+    st.header("⚙️ Settings")
+    st.write("System configuration…")
 
 
 # -------------------------------------------------------
-# OPTIONAL FOOTER (aligned with content area)
+# OPTIONAL CUSTOM FOOTER (ALIGNED)
 # -------------------------------------------------------
 custom_footer = """
     <style>
         .custom-footer {
             position: fixed;
             bottom: 0;
-            left: 230px;   /* aligned under content area */
-            width: calc(100% - 230px);
-            background-color: #f1f5ff;
-            color: #333;
+            left: 240px;
+            width: calc(100% - 240px);
+            background-color: #2c6bed;
+            color: white;
             text-align: center;
             padding: 10px;
-            font-size: 13px;
-            z-index: 9996;
-            border-top: 1px solid #e6ecff;
+            z-index: 9999;
+            font-size: 14px;
         }
     </style>
 
