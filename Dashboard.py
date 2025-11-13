@@ -12,13 +12,35 @@ hide_default = """
 """
 st.markdown(hide_default, unsafe_allow_html=True)
 
+# -------------------------------------------------------
+# INIT SESSION STATE FOR ACTIVE PAGE
+# -------------------------------------------------------
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "dashboard"
 
 # -------------------------------------------------------
-# FIXED CUSTOM HEADER WITH TAB SWITCHING
+# JAVASCRIPT FUNCTION TO UPDATE SESSION STATE
 # -------------------------------------------------------
-custom_header = """
+page_switch_js = """
+    <script>
+        function switchPage(page) {
+            const streamlitMessage = {
+                type: "streamlit:setComponentValue",
+                value: page
+            };
+            window.parent.postMessage(streamlitMessage, "*");
+        }
+    </script>
+"""
+
+st.markdown(page_switch_js, unsafe_allow_html=True)
+
+# -------------------------------------------------------
+# FIXED CUSTOM HEADER ONLY (NO INTERNAL TABS)
+# -------------------------------------------------------
+custom_header = f"""
     <style>
-        .custom-header {
+        .custom-header {{
             position: fixed;
             top: 0;
             left: 0;
@@ -33,64 +55,74 @@ custom_header = """
             justify-content: space-between;
             align-items: center;
             box-shadow: 0px 2px 4px rgba(0,0,0,0.2);
-        }
-        .header-links a {
+        }}
+        .header-links a {{
             color: white;
             margin-left: 25px;
             text-decoration: none;
             font-size: 16px;
-            font-weight: 500;
             cursor: pointer;
-        }
-        .header-links a:hover {
+            font-weight: 500;
+            opacity: 0.65;
+        }}
+
+        .header-links a.active {{
+            opacity: 1;
             text-decoration: underline;
-        }
-        .block-container {
+        }}
+
+        .block-container {{
             padding-top: 90px !important;
-        }
+        }}
     </style>
 
     <div class="custom-header">
         <div>MES Application</div>
         <div class="header-links">
-            <a onclick="switchTab(0)">Dashboard</a>
-            <a onclick="switchTab(1)">Reports</a>
-            <a onclick="switchTab(2)">Settings</a>
+            <a class="{ 'active' if st.session_state.active_page=='dashboard' else ''}"
+               onclick="streamlitSend('dashboard')">Dashboard</a>
+
+            <a class="{ 'active' if st.session_state.active_page=='reports' else ''}"
+               onclick="streamlitSend('reports')">Reports</a>
+
+            <a class="{ 'active' if st.session_state.active_page=='settings' else ''}"
+               onclick="streamlitSend('settings')">Settings</a>
         </div>
     </div>
 
     <script>
-        function switchTab(index) {
-            const tabs = window.parent.document.querySelectorAll('div[data-testid="stTabs"] button');
-            if (tabs && tabs[index]) {
-                tabs[index].click();
-            }
-        }
+        function streamlitSend(page) {{
+            window.parent.postMessage(
+                {{isStreamlitMessage: true, type: "streamlit:setComponentValue", value: page}},
+                "*"
+            );
+        }}
     </script>
 """
-
 st.markdown(custom_header, unsafe_allow_html=True)
 
+# -------------------------------------------------------
+# LISTEN FOR HEADER CLICK EVENTS
+# -------------------------------------------------------
+event = st.experimental_get_query_params()
+if "_component_value" in event:
+    st.session_state.active_page = event["_component_value"][0]
 
 # -------------------------------------------------------
-# MAIN TABS (CONTROLLED BY HEADER)
+# MAIN CONTENT AREA (NO TABS)
 # -------------------------------------------------------
-main_tabs = st.tabs(["Dashboard", "Reports", "Settings"])
-
-with main_tabs[0]:
+if st.session_state.active_page == "dashboard":
     st.header("📊 Dashboard")
-    t1, t2 = st.tabs(["Production", "Quality"])
-    t1.write("Production KPIs...")
-    t2.write("Quality KPIs...")
+    st.write("Production KPIs...")
+    st.write("Quality KPIs...")
 
-with main_tabs[1]:
+elif st.session_state.active_page == "reports":
     st.header("📁 Reports")
     st.write("Report listing...")
 
-with main_tabs[2]:
+elif st.session_state.active_page == "settings":
     st.header("⚙️ Settings")
-    st.write("System configuration...")
-
+    st.write("Settings page...")
 
 # -------------------------------------------------------
 # CUSTOM FOOTER
